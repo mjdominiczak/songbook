@@ -11,10 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.mjdominiczak.songbook.presentation.components.SongListItem
 
 @Composable
 fun SongListScreen(
+    navController: NavController,
     viewModel: SongListViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -31,7 +33,12 @@ fun SongListScreen(
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(state.songs) { song -> SongListItem(song) }
+                items(state.songs) { song ->
+                    SongListItem(
+                        song = song,
+                        onClick = { navController.navigate("songs/${song.id}") }
+                    )
+                }
             }
         }
     }
