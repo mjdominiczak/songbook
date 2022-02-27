@@ -27,8 +27,9 @@ class SongListViewModel @Inject constructor(
         getAllSongsUseCase().onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _state.value =
-                        SongListState(songs = result.data?.sortedBy { it.title } ?: emptyList())
+                    _state.value = SongListState(
+                        songs = result.data?.sortedBy { it.title }?.groupBy { it.title[0] }
+                            ?: emptyMap())
                 }
                 is Resource.Error -> {
                     _state.value = SongListState(

@@ -1,16 +1,20 @@
 package com.mjdominiczak.songbook.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mjdominiczak.songbook.data.Song
+import com.mjdominiczak.songbook.presentation.theme.HeaderDark
+import com.mjdominiczak.songbook.presentation.theme.HeaderLight
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -18,11 +22,9 @@ fun SongListItem(
     song: Song,
     onClick: () -> Unit
 ) {
-    Card(
+    Surface(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -37,6 +39,22 @@ fun SongListItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun InitialStickyHeader(initial: Char) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .background(if (isSystemInDarkTheme()) HeaderDark else HeaderLight)
+            .padding(vertical = 2.dp, horizontal = 12.dp)
+    ) {
+        Text(
+            text = initial.toString().uppercase(),
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.primary
+        )
     }
 }
 
