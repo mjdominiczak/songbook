@@ -2,13 +2,13 @@ package com.mjdominiczak.songbook.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,22 +16,22 @@ import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.presentation.theme.HeaderDark
 import com.mjdominiczak.songbook.presentation.theme.HeaderLight
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SongListItem(
     song: Song,
     onClick: () -> Unit
 ) {
     Surface(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Column(
             modifier = Modifier
                 .padding(12.dp)
                 .fillMaxSize()
         ) {
-            Text(song.title, style = MaterialTheme.typography.subtitle1)
+            Text(song.title, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Row {
                 for (tag in song.tags) {
@@ -52,8 +52,8 @@ fun InitialStickyHeader(initial: Char) {
     ) {
         Text(
             text = initial.toString().uppercase(),
-            style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.primary
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -64,15 +64,15 @@ fun Tag(tag: String, modifier: Modifier = Modifier) {
         modifier = modifier
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(4.dp)
     ) {
         Text(
             text = tag,
-            color = MaterialTheme.colors.secondary,
-            style = MaterialTheme.typography.body2
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

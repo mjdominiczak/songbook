@@ -1,9 +1,9 @@
 package com.mjdominiczak.songbook.presentation
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +23,7 @@ fun SongDetailScreen(viewModel: SongDetailViewModel = hiltViewModel()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         } else if (state.song != null) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(text = state.song.title, style = MaterialTheme.typography.h6)
+                Text(text = state.song.title, style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = state.song.text)
                 Spacer(modifier = Modifier.height(20.dp))
