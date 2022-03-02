@@ -4,6 +4,8 @@ import com.mjdominiczak.songbook.data.Song
 
 data class SongListState(
     val isLoading: Boolean = false,
-    val songs: Map<Char, List<Song>> = emptyMap(),
-    val error: String? = null
+    val songs: List<Song> = emptyList(),
+    val error: String? = null,
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = ""
 )

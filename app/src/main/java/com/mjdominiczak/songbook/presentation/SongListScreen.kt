@@ -4,9 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,6 +17,7 @@ import androidx.navigation.NavController
 import com.mjdominiczak.songbook.R
 import com.mjdominiczak.songbook.presentation.components.InitialStickyHeader
 import com.mjdominiczak.songbook.presentation.components.SongListItem
+import com.mjdominiczak.songbook.presentation.components.SongbookAppBarWithSearch
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -34,33 +32,17 @@ fun SongListScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Not yet implemented")
-                        }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu button"
-                        )
+            SongbookAppBarWithSearch(
+                isSearchActive = state.isSearchActive,
+                onSearchActivate = { viewModel.activateSearch() },
+                onSearchDeactivate = { viewModel.deactivateSearch() },
+                searchQuery = state.searchQuery,
+                onSearchQueryChanged = { query -> viewModel.onSearchQueryChanged(query) },
+                onNavIconPressed = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Not yet implemented")
                     }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Not yet implemented")
-                        }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search button"
-                        )
-                    }
-                },
-                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior { true }
+                }
             )
         }
     ) {
@@ -76,8 +58,8 @@ fun SongListScreen(
                     }
                 }
             } else {
-                LazyColumn {
-                    state.songs.forEach { (initial, listOfSongs) ->
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    viewModel.songsFiltered.forEach { (initial, listOfSongs) ->
                         stickyHeader {
                             InitialStickyHeader(initial = initial)
                         }

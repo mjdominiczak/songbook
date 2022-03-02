@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mjdominiczak.songbook.common.Resource
+import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -18,6 +19,15 @@ class SongListViewModel @Inject constructor(
 
     private val _state = mutableStateOf(SongListState())
     val state: State<SongListState> = _state
+    val songsFiltered: Map<Char, List<Song>>
+        get() = _state.value.songs
+            .filter {
+                !_state.value.isSearchActive ||
+                        _state.value.searchQuery.isNotEmpty()
+                        && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
+            }
+            .sortedBy { it.title }
+            .groupBy { it.title[0] }
 
     init {
         getAllSongs()
@@ -28,8 +38,8 @@ class SongListViewModel @Inject constructor(
             when (result) {
                 is Resource.Success -> {
                     _state.value = SongListState(
-                        songs = result.data?.sortedBy { it.title }?.groupBy { it.title[0] }
-                            ?: emptyMap())
+                        songs = result.data ?: emptyList()
+                    )
                 }
                 is Resource.Error -> {
                     _state.value = SongListState(
@@ -42,5 +52,17 @@ class SongListViewModel @Inject constructor(
             }
 
         }.launchIn(viewModelScope)
+    }
+
+    fun activateSearch() {
+        _state.value = _state.value.copy(isSearchActive = true)
+    }
+
+    fun deactivateSearch() {
+        _state.value = _state.value.copy(isSearchActive = false, searchQuery = "")
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        _state.value = _state.value.copy(searchQuery = query)
     }
 }
