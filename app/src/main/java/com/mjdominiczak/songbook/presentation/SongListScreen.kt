@@ -59,20 +59,22 @@ fun SongListScreen(
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    viewModel.songsFiltered.forEach { (initial, listOfSongs) ->
-                        stickyHeader {
-                            InitialStickyHeader(initial = initial)
-                        }
-                        itemsIndexed(listOfSongs) { index, song ->
-                            SongListItem(
-                                song = song,
-                                onClick = { navController.navigate("songs/${song.id}") }
-                            )
-                            if (index < listOfSongs.size - 1) {
-                                Divider()
+                    viewModel.songsFiltered
+                        .groupBy { it.title[0] }
+                        .forEach { (initial, listOfSongs) ->
+                            stickyHeader {
+                                InitialStickyHeader(initial = initial)
+                            }
+                            itemsIndexed(listOfSongs) { index, song ->
+                                SongListItem(
+                                    song = song,
+                                    onClick = { navController.navigate("songs/${song.id}") }
+                                )
+                                if (index < listOfSongs.size - 1) {
+                                    Divider()
+                                }
                             }
                         }
-                    }
                 }
             }
         }

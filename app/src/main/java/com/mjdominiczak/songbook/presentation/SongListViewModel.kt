@@ -19,7 +19,7 @@ class SongListViewModel @Inject constructor(
 
     private val _state = mutableStateOf(SongListState())
     val state: State<SongListState> = _state
-    val songsFiltered: Map<Char, List<Song>>
+    val songsFiltered: List<Song>
         get() = _state.value.songs
             .filter {
                 !_state.value.isSearchActive ||
@@ -27,7 +27,6 @@ class SongListViewModel @Inject constructor(
                         && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
             }
             .sortedBy { it.title }
-            .groupBy { it.title[0] }
 
     init {
         getAllSongs()
