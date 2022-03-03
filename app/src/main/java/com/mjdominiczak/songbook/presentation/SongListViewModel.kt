@@ -22,7 +22,7 @@ class SongListViewModel @Inject constructor(
     val songsFiltered: List<Song>
         get() = _state.value.songs
             .filter {
-                !_state.value.isSearchActive ||
+                _state.value.searchQuery.isEmpty() ||
                         _state.value.searchQuery.isNotEmpty()
                         && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
             }
