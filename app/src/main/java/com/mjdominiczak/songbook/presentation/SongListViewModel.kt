@@ -35,22 +35,26 @@ class SongListViewModel @Inject constructor(
     fun getAllSongs() {
         getAllSongsUseCase().onEach { result ->
             when (result) {
-                is Resource.Success -> {
-                    _state.value = SongListState(
-                        songs = result.data ?: emptyList()
-                    )
-                }
-                is Resource.Error -> {
-                    _state.value = SongListState(
-                        error = result.message ?: "Unexpected error occured"
-                    )
-                }
-                is Resource.Loading -> {
-                    _state.value = SongListState(isLoading = true)
-                }
+                is Resource.Success -> setData(result.data)
+                is Resource.Error -> setError(result.message)
+                is Resource.Loading -> _state.value = SongListState(isLoading = true)
             }
 
         }.launchIn(viewModelScope)
+    }
+
+    private fun setData(songs: List<Song>?) {
+        _state.value = _state.value.copy(
+            isLoading = false,
+            songs = songs ?: emptyList()
+        )
+    }
+
+    private fun setError(message: String?) {
+        _state.value = _state.value.copy(
+            isLoading = false,
+            error = message ?: "Unexpected error occured"
+        )
     }
 
     fun activateSearch() {
