@@ -1,43 +1,75 @@
 package com.mjdominiczak.songbook.presentation
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.mjdominiczak.songbook.presentation.components.Tag
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SongDetailScreen(viewModel: SongDetailViewModel = hiltViewModel()) {
+fun SongDetailScreen(
+    navController: NavController,
+    viewModel: SongDetailViewModel = hiltViewModel()
+) {
     val state = viewModel.state.value
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        if (state.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else if (state.song != null) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Text(text = state.song.title, style = MaterialTheme.typography.headlineSmall)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = state.song.text)
-                Spacer(modifier = Modifier.height(20.dp))
-                Row {
-                    for (tag in state.song.tags) {
-                        Tag(tag = tag, modifier = Modifier.padding(end = 8.dp))
+    Scaffold(
+        topBar = {
+            SmallTopAppBar(
+                title = {
+                    Text(
+                        text = state.song?.title ?: "",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back button"
+                        )
                     }
                 }
-            }
-        } else {
-            Text(
-                text = state.error ?: "Unexpected error occured",
-                modifier = Modifier.align(Alignment.Center)
             )
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (state.song != null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Row {
+                        for (tag in state.song.tags) {
+                            Tag(tag = tag, modifier = Modifier.padding(end = 8.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = state.song.text)
+                }
+            } else {
+                Text(
+                    text = state.error ?: "Unexpected error occured",
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         }
     }
 }

@@ -2,7 +2,10 @@ package com.mjdominiczak.songbook.presentation.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
@@ -16,30 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.mjdominiczak.songbook.R
 
 @Composable
-fun SongbookAppBar(
-    modifier: Modifier = Modifier,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    onNavIconPressed: () -> Unit = {},
-    title: @Composable () -> Unit,
-    actions: @Composable RowScope.() -> Unit = {}
-) {
-    CenterAlignedTopAppBar(
-        modifier = modifier,
-        title = { title() },
-        navigationIcon = {
-            IconButton(onClick = { onNavIconPressed() }) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu button"
-                )
-            }
-        },
-        actions = { actions() },
-        scrollBehavior = scrollBehavior
-    )
-}
-
-@Composable
 fun SongbookAppBarWithSearch(
     isSearchActive: Boolean,
     onSearchActivate: () -> Unit,
@@ -50,9 +29,16 @@ fun SongbookAppBarWithSearch(
 ) {
     Crossfade(targetState = isSearchActive) { showSearch ->
         if (!showSearch) {
-            SongbookAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                onNavIconPressed = onNavIconPressed,
+                navigationIcon = {
+                    IconButton(onClick = { onNavIconPressed() }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menu button"
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onSearchActivate) {
                         Icon(

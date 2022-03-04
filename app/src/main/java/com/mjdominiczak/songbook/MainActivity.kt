@@ -43,7 +43,7 @@ fun SongbookNavHost() {
                 defaultValue = -1
             })
         ) {
-            SongDetailScreen()
+            SongDetailScreen(navController)
         }
     }
 }
