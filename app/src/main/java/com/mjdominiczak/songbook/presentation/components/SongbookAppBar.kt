@@ -1,5 +1,6 @@
 package com.mjdominiczak.songbook.presentation.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -62,6 +63,9 @@ fun SongbookAppBarWithSearch(
                 }
             )
         } else {
+            BackHandler {
+                onSearchDeactivate()
+            }
             Surface(
                 modifier = Modifier.height(64.dp),
                 color = MaterialTheme.colorScheme.secondary,
