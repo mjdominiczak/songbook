@@ -50,7 +50,7 @@ fun SongbookNavHost() {
         composable(
             route = Routes.ADD_SONG
         ) {
-            AddEditSongScreen()
+            AddEditSongScreen(navController)
         }
     }
 }

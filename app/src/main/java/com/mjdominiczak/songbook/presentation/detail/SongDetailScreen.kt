@@ -36,7 +36,7 @@ fun SongDetailScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back button"
+                            contentDescription = "Back"
                         )
                     }
                 }
