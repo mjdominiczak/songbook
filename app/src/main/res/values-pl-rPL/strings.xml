@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">Śpiewnik</string>
     <string name="retry">Jeszcze raz</string>
+    <string name="title">Tytuł</string>
 </resources>

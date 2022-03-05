@@ -26,6 +26,7 @@ import com.mjdominiczak.songbook.R
 import com.mjdominiczak.songbook.presentation.components.InitialStickyHeader
 import com.mjdominiczak.songbook.presentation.components.SongListItem
 import com.mjdominiczak.songbook.presentation.components.SongbookAppBarWithSearch
+import com.mjdominiczak.songbook.presentation.navigation.Routes
 import kotlinx.coroutines.launch
 
 @OptIn(
@@ -74,11 +75,7 @@ fun SongListScreen(
                 enter = scaleIn(),
                 exit = scaleOut()
             ) {
-                FloatingActionButton(onClick = {
-                    scope.launch {
-                        snackbarHostState.showSnackbar("Not yet implemented")
-                    }
-                }) {
+                FloatingActionButton(onClick = { navController.navigate(Routes.ADD_SONG) }) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add new song")
                 }
             }
@@ -106,7 +103,7 @@ fun SongListScreen(
                             itemsIndexed(listOfSongs) { index, song ->
                                 SongListItem(
                                     song = song,
-                                    onClick = { navController.navigate("songs/${song.id}") }
+                                    onClick = { navController.navigate(Routes.songDetailRoute(song.id)) }
                                 )
                                 if (index < listOfSongs.size - 1) {
                                     Divider()
