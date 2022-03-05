@@ -1,4 +1,4 @@
-package com.mjdominiczak.songbook.presentation
+package com.mjdominiczak.songbook.presentation.list
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi

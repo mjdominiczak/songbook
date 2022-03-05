@@ -1,4 +1,4 @@
-package com.mjdominiczak.songbook.presentation
+package com.mjdominiczak.songbook.presentation.list
 
 import com.mjdominiczak.songbook.data.Song
 

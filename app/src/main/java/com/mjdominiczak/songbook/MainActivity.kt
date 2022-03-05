@@ -10,8 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mjdominiczak.songbook.presentation.SongDetailScreen
-import com.mjdominiczak.songbook.presentation.SongListScreen
+import com.mjdominiczak.songbook.presentation.detail.SongDetailScreen
+import com.mjdominiczak.songbook.presentation.list.SongListScreen
 import com.mjdominiczak.songbook.presentation.theme.SongbookTheme
 import dagger.hilt.android.AndroidEntryPoint
 

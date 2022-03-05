@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
+import com.mjdominiczak.songbook.presentation.list.SongListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import org.junit.Before

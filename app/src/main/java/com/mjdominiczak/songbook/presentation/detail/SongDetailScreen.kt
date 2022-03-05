@@ -1,4 +1,4 @@
-package com.mjdominiczak.songbook.presentation
+package com.mjdominiczak.songbook.presentation.detail
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState

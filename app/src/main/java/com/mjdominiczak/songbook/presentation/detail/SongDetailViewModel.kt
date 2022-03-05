@@ -1,4 +1,4 @@
-package com.mjdominiczak.songbook.presentation
+package com.mjdominiczak.songbook.presentation.detail
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
