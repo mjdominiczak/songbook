@@ -80,8 +80,13 @@ fun SongListScreen(
                 }
             }
         }
-    ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             if (state.isLoading) {
                 CircularProgressIndicator()
             } else if (state.error != null) {

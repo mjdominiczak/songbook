@@ -1,9 +1,12 @@
 package com.mjdominiczak.songbook.di
 
+import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
+import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.data.SongRepositoryImpl
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
+import com.mjdominiczak.songbook.json.SectionTypeAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +23,13 @@ object AppModule {
     @Singleton
     fun provideSongApi(): SongApi = Retrofit.Builder()
         .baseUrl(Constants.API_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(
+            GsonConverterFactory.create(
+                GsonBuilder()
+                    .registerTypeAdapter(Section::class.java, SectionTypeAdapter())
+                    .create()
+            )
+        )
         .build()
         .create(SongApi::class.java)
 

@@ -42,9 +42,10 @@ fun AddEditSongScreen(navController: NavController) {
                 scrollBehavior = scrollBehavior
             )
         }
-    ) {
+    ) { paddingValues: PaddingValues ->
         Column(
             modifier = Modifier
+                .padding(paddingValues)
                 .fillMaxSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
