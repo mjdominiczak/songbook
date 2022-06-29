@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,14 +30,14 @@ fun SongbookAppBarWithSearch(
         if (!showSearch) {
             CenterAlignedTopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                navigationIcon = {
-                    IconButton(onClick = { onNavIconPressed() }) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menu button"
-                        )
-                    }
-                },
+//                navigationIcon = {
+//                    IconButton(onClick = { onNavIconPressed() }) {
+//                        Icon(
+//                            imageVector = Icons.Default.Menu,
+//                            contentDescription = "Menu button"
+//                        )
+//                    }
+//                },
                 actions = {
                     IconButton(onClick = onSearchActivate) {
                         Icon(
