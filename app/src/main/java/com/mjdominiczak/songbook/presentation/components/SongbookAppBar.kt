@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mjdominiczak.songbook.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongbookAppBarWithSearch(
     isSearchActive: Boolean,

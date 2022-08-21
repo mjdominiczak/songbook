@@ -21,7 +21,7 @@ import com.mjdominiczak.songbook.R
 fun AddEditSongScreen(navController: NavController) {
     var title by remember { mutableStateOf("") }
     var songText by remember { mutableStateOf("") }
-    val scrollBehavior = remember { TopAppBarDefaults.pinnedScrollBehavior() }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
             SmallTopAppBar(
