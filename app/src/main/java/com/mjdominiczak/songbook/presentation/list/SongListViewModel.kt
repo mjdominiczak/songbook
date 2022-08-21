@@ -10,6 +10,8 @@ import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.text.Collator
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +28,7 @@ class SongListViewModel @Inject constructor(
                         _state.value.searchQuery.isNotEmpty()
                         && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
             }
-            .sortedBy { it.title }
+            .sortedWith(compareBy(Collator.getInstance(Locale.getDefault())) { it.title })
 
     init {
         getAllSongs()
