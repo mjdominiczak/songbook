@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.flow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SongListViewModelTest {
@@ -30,9 +30,9 @@ class SongListViewModelTest {
                 emit(
                     Resource.Success(
                         listOf(
-                            Song(1, 1, "asdf", "", "", "", "", 0, emptyList()),
-                            Song(2, 1, "qwer", "", "", "", "", 0, emptyList()),
-                            Song(3, 1, "dgfg", "", "", "", "", 0, emptyList()),
+                            Song(1, 1, "asdf", "", ""),
+                            Song(2, 1, "qwer", "", ""),
+                            Song(3, 1, "dgfg", "", ""),
                         )
                     )
                 )
