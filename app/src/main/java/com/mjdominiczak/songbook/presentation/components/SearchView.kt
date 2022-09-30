@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldColors
@@ -48,13 +47,12 @@ fun SearchView(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
+            textStyle = MaterialTheme.typography.bodyLarge,
             leadingIcon = {
                 Icon(
                     Icons.Default.Search,
                     contentDescription = "",
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .size(24.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             },
             trailingIcon = {
@@ -67,9 +65,7 @@ fun SearchView(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "",
-                            modifier = Modifier
-                                .padding(15.dp)
-                                .size(24.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
