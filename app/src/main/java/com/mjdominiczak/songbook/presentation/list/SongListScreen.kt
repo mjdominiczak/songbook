@@ -1,5 +1,6 @@
 package com.mjdominiczak.songbook.presentation.list
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
@@ -17,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -88,14 +90,11 @@ fun SongListScreen(
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator()
-            } else if (state.error != null) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(state.error)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.getAllSongs() }) {
-                        Text(text = stringResource(R.string.retry))
-                    }
-                }
+            } else if (state.error != null || state.songs.isEmpty()) {
+                InfoWithRetryButton(
+                    text = state.error ?: stringResource(id = R.string.no_songs_available),
+                    onClick = { viewModel.getAllSongs() }
+                )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     viewModel.songsFiltered
@@ -119,3 +118,27 @@ fun SongListScreen(
         }
     }
 }
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun InfoWithRetryButton(
+    text: String = stringResource(id = R.string.no_songs_available),
+    onClick: () -> Unit = {},
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Text(
+            text = text,
+            color = contentColorFor(MaterialTheme.colorScheme.background),
+            maxLines = 3,
+            style = MaterialTheme.typography.titleMedium
+        )
+        Button(onClick = { onClick() }) {
+            Text(text = stringResource(R.string.retry))
+        }
+    }
+}
+
