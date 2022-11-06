@@ -3,6 +3,7 @@ package com.mjdominiczak.songbook.presentation.theme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -32,3 +33,21 @@ val Typography = Typography(
     )
     */
 )
+
+object SongbookTypography {
+    val songStyle = TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+    )
+    val chordsStyle = songStyle.copy(
+        fontWeight = FontWeight.SemiBold,
+    )
+    val chorusStyle = songStyle.copy(
+        fontStyle = FontStyle.Italic,
+    )
+    val markerStyle = songStyle.copy(
+        fontWeight = FontWeight.Bold,
+    )
+}

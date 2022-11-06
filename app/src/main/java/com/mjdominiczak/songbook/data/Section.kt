@@ -1,25 +1,25 @@
 package com.mjdominiczak.songbook.data
 
 sealed class Section(
-    number: Int,
-    text: String,
-    chords: String? = null,
+    open val number: Int,
+    open val text: String,
+    open val chords: String? = null,
     val sectionId: Int
 ) {
     data class SimpleSection(
-        val text: String,
-        val chords: String? = null
+        override val text: String,
+        override val chords: String? = null
     ) : Section(0, text, chords, 0)
 
     data class Verse(
-        val number: Int,
-        val text: String,
-        val chords: String? = null
+        override val number: Int,
+        override val text: String,
+        override val chords: String? = null
     ) : Section(number, text, chords, 0)
 
     data class Chorus(
-        val number: Int = 0,
-        val text: String,
-        val chords: String? = null
+        override val number: Int = 0,
+        override val text: String,
+        override val chords: String? = null
     ) : Section(number, text, chords, 0)
 }

@@ -1,5 +1,6 @@
 package com.mjdominiczak.songbook.presentation.detail
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,17 +10,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.presentation.components.Tag
+import com.mjdominiczak.songbook.presentation.theme.SongbookTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,11 +31,11 @@ fun SongDetailScreen(
     val state = viewModel.state.value
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
-                        text = state.song?.title ?: "",
-                        maxLines = 2,
+                        text = state.song?.title.orEmpty(),
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
@@ -53,7 +54,7 @@ fun SongDetailScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(horizontal = 8.dp)
+                .padding(vertical = 16.dp)
         ) {
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -64,42 +65,41 @@ fun SongDetailScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     state.song.info?.let {
-                        Text(text = it, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Light)
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Light,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     state.song.content?.forEach { section ->
                         when (section) {
-                            is Section.SimpleSection -> Text(text = section.text)
-                            is Section.Chorus -> Text(
-                                buildAnnotatedString {
-                                    withStyle(
-                                        style = SpanStyle(
-                                            fontWeight = FontWeight.Bold,
-                                            fontStyle = FontStyle.Italic
-                                        )
-                                    ) {
-                                        append("Ref.: ")
-                                    }
-                                    withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
-                                        append(section.text)
-                                    }
-                                }
+                            is Section.SimpleSection -> SectionWithMarker(
+                                text = section.text,
+                                chords = section.chords
                             )
-                            is Section.Verse -> Text(
-                                buildAnnotatedString {
-                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append("${section.number}. ")
-                                    }
-                                    append(section.text)
-                                }
+                            is Section.Chorus -> SectionWithMarker(
+                                text = section.text,
+                                chords = section.chords,
+                                marker = "Ref.:",
+                                textStyle = SongbookTypography.chorusStyle
+                            )
+                            is Section.Verse -> SectionWithMarker(
+                                text = section.text,
+                                chords = section.chords,
+                                marker = "${section.number}."
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     Spacer(modifier = Modifier.height(20.dp))
-                    Row {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         for (tag in state.song.tags) {
-                            Tag(tag = tag, modifier = Modifier.padding(end = 8.dp))
+                            Tag(tag = tag)
                         }
                     }
                 }
@@ -110,5 +110,87 @@ fun SongDetailScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SectionWithMarker(
+    text: String = """
+            asd asda sda sd
+            asd asda sda sda
+            asd asda sda sd
+            """.trimIndent(),
+    chords: String? = """
+            A   F   A  B
+            A   F   A  B
+            A   F   A  B
+            """.trimIndent(),
+    marker: String? = null,
+    textStyle: TextStyle = SongbookTypography.songStyle,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        val chordsLinesRaw = chords?.lines() ?: emptyList()
+        marker?.let {
+            Column {
+                if (chordsLinesRaw.isNotEmpty()) Text(
+                    text = "", // Distance for the first chords line
+                    style = SongbookTypography.chordsStyle
+                )
+                Text(
+                    text = it,
+                    style = SongbookTypography.markerStyle
+                )
+            }
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            val lines = text.lines()
+            val chordsLines = if (chordsLinesRaw.size == lines.size) {
+                chordsLinesRaw
+            } else {
+                List(lines.size) { chordsLinesRaw.getOrNull(it) }
+            }
+            chordsLines.zip(lines).forEach { pair ->
+                SectionSimple(
+                    text = pair.second,
+                    chords = pair.first,
+                    textStyle = textStyle
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SectionSimple(
+    text: String = "asd asda sda sd",
+    chords: String? = "A   F   A  B",
+    textStyle: TextStyle = SongbookTypography.songStyle
+) {
+    Column(
+        modifier = Modifier.sizeIn(maxWidth = Dp.Infinity),
+    ) {
+        chords?.let {
+            Text(
+                text = it,
+                style = SongbookTypography.chordsStyle,
+                color = MaterialTheme.colorScheme.primary,
+                maxLines = 1,
+            )
+        }
+        Text(
+            text = text,
+            style = textStyle,
+            maxLines = 1,
+        )
     }
 }
