@@ -8,6 +8,7 @@ import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.text.Collator
@@ -18,6 +19,9 @@ import javax.inject.Inject
 class SongListViewModel @Inject constructor(
     private val getAllSongsUseCase: GetAllSongsUseCase
 ) : ViewModel() {
+
+    private var retryCount = 0
+    private val retryLimit = 1
 
     private val _state = mutableStateOf(SongListState())
     val state: State<SongListState> = _state
@@ -37,12 +41,23 @@ class SongListViewModel @Inject constructor(
     fun getAllSongs() {
         getAllSongsUseCase().onEach { result ->
             when (result) {
-                is Resource.Success -> setData(result.data)
+                is Resource.Success -> {
+                    if (result.data.isNullOrEmpty() && retryCount < retryLimit) {
+                        scheduleRetry()
+                    } else {
+                        setData(result.data)
+                    }
+                }
                 is Resource.Error -> setError(result.message)
                 is Resource.Loading -> _state.value = SongListState(isLoading = true)
             }
-
         }.launchIn(viewModelScope)
+    }
+
+    private suspend fun scheduleRetry() {
+        retryCount++
+        delay(1500)
+        getAllSongs()
     }
 
     private fun setData(songs: List<Song>?) {
