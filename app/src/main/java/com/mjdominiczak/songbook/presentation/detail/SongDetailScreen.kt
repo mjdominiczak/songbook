@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,9 @@ fun SongDetailScreen(
     viewModel: SongDetailViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -42,7 +45,8 @@ fun SongDetailScreen(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         }
     ) { paddingValues ->
@@ -74,7 +78,7 @@ fun SongDetailScreen(
                             modifier = Modifier
                                 .horizontalScroll(rememberScrollState())
                                 .padding(horizontal = 16.dp),
-                            ) {
+                        ) {
                             when (section) {
                                 is Section.SimpleSection -> SimpleSectionView(
                                     text = section.text,
