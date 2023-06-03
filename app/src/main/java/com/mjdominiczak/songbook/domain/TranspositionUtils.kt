@@ -17,7 +17,7 @@ class ChordCollector(private val songs: List<Song>) {
                 }
             }
         }
-        println(chordsSet.sorted())
+        println(chordsSet.sorted().map { it.transpose(4) })
     }
 
 }

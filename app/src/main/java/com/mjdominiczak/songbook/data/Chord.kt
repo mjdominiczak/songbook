@@ -30,6 +30,13 @@ data class Chord(
     override fun toString(): String {
         return "$base$suffix"
     }
+
+    fun transpose(semitones: Int) =
+        this.copy(
+            base = ChordBase.valueOf(
+                chordsList[(chordsList.indexOf(this.base.name) + 2 * semitones).mod(chordsList.size)]
+            )
+        )
 }
 
 val chordsList = listOf(
