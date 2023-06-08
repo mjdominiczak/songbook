@@ -1,14 +1,16 @@
 package com.mjdominiczak.songbook.data
 
+import com.mjdominiczak.songbook.data.local.SongDatabase
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import javax.inject.Inject
 
 class SongRepositoryImpl @Inject constructor(
-    private val api: SongApi
+    private val api: SongApi,
+    private val db: SongDatabase
 ) : SongRepository {
     override suspend fun addSong(song: Song) {
-        TODO("Not yet implemented")
+        db.addSong(song)
     }
 
     override suspend fun getAllSongs(): List<Song> {

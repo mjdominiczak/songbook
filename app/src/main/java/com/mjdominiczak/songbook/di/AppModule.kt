@@ -4,6 +4,8 @@ import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.data.SongRepositoryImpl
+import com.mjdominiczak.songbook.data.local.SongDatabase
+import com.mjdominiczak.songbook.data.local.SongDto
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
@@ -11,6 +13,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.realm.kotlin.Configuration
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -46,5 +51,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSongRepository(api: SongApi): SongRepository = SongRepositoryImpl(api)
+    fun provideRealmConfiguration(): Configuration = RealmConfiguration.create(
+        schema = setOf(SongDto::class)
+    )
+
+    @Provides
+    @Singleton
+    fun provideRealm(config: Configuration): Realm = Realm.open(configuration = config)
+
+    @Provides
+    @Singleton
+    fun provideSongDatabase(realm: Realm) = SongDatabase(realm)
+
+    @Provides
+    @Singleton
+    fun provideSongRepository(api: SongApi, db: SongDatabase): SongRepository =
+        SongRepositoryImpl(api = api, db = db)
 }

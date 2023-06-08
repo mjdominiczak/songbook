@@ -9,7 +9,7 @@ class ChordCollector(private val songs: List<Song>) {
 
     fun parseChords() {
         songs.forEach { song ->
-            song.content?.forEach { section ->
+            song.content.forEach { section ->
                 section.chords?.split(Pattern.compile("[\\s\\[\\]()|,]+")).run {
                     this?.forEach { singleChord ->
                         Chord.fromString(singleChord)?.let { chordsSet.add(it) }

@@ -1,5 +1,8 @@
 package com.mjdominiczak.songbook.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class Section(
     open val number: Int,
     open val text: String,
