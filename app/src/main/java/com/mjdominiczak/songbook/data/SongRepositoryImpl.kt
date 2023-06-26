@@ -27,7 +27,7 @@ class SongRepositoryImpl @Inject constructor(
         if (API_ENABLED) api.getAllSongs()
         else db.getAllSongs().toList().map { it.toSong() }
 
-    override suspend fun getSongById(id: Int): Song {
-        return api.getSongById(id)
-    }
+    override suspend fun getSongById(id: Int): Song =
+        if (API_ENABLED) api.getSongById(id)
+        else db.getSongById(id).toList().first().toSong()
 }

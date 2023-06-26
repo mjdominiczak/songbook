@@ -14,4 +14,6 @@ class SongDatabase(private val realm: Realm) {
     suspend fun addSongs(songs: List<Song>) = songs.forEach { addSong(it) }
 
     fun getAllSongs() = realm.query<SongDto>().find()
+
+    fun getSongById(id: Int) = realm.query<SongDto>("id = $id").find()
 }
