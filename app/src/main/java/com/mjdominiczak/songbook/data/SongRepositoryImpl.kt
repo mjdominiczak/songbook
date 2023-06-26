@@ -19,6 +19,10 @@ class SongRepositoryImpl @Inject constructor(
         db.addSong(song)
     }
 
+    override suspend fun addMultipleSongs(songs: List<Song>) {
+        db.addSongs(songs)
+    }
+
     override suspend fun getAllSongs(): List<Song> =
         if (API_ENABLED) api.getAllSongs()
         else db.getAllSongs().toList().map { it.toSong() }

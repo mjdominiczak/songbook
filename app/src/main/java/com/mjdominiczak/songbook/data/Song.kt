@@ -1,5 +1,8 @@
 package com.mjdominiczak.songbook.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Song(
     val id: Int,
     val version: Int,

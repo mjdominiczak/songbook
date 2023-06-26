@@ -17,7 +17,7 @@ class SongDto : RealmObject {
     var titleAlt: String? = null
     var info: String? = null
 //    @Serializable(RealmListKSerializer::class)
-//    var content: RealmList<Section> = realmListOf()
+    var content: RealmList<SectionDto> = realmListOf()
     var transposition: Int = 0
     var tags: RealmList<String> = realmListOf()
 }
@@ -28,7 +28,7 @@ fun Song.toSongDto() = SongDto().apply {
     title = this@toSongDto.title
     titleAlt = this@toSongDto.titleAlt
     info = this@toSongDto.info
-//    content = this@toSongDto.content.toRealmList()
+    content = this@toSongDto.content.map { it.toSectionDto() }.toRealmList()
     transposition = this@toSongDto.transposition
     tags = this@toSongDto.tags.toRealmList()
 }
@@ -39,8 +39,8 @@ fun SongDto.toSong() = Song(
     title = this.title,
     titleAlt = this.titleAlt,
     info = this.info,
-    content = emptyList(),
-//    content = this.content,
+//    content = emptyList(),
+    content = this.content.map { it.toSection() },
     transposition = this.transposition,
     tags = this.tags,
 )

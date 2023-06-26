@@ -11,5 +11,7 @@ class SongDatabase(private val realm: Realm) {
         copyToRealm(instance = song.toSongDto(), updatePolicy = UpdatePolicy.ALL)
     }
 
+    suspend fun addSongs(songs: List<Song>) = songs.forEach { addSong(it) }
+
     fun getAllSongs() = realm.query<SongDto>().find()
 }

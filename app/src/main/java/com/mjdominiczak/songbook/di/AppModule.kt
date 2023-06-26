@@ -1,17 +1,22 @@
 package com.mjdominiczak.songbook.di
 
+import android.content.Context
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.data.SongRepositoryImpl
+import com.mjdominiczak.songbook.data.local.SectionDto
 import com.mjdominiczak.songbook.data.local.SongDatabase
 import com.mjdominiczak.songbook.data.local.SongDto
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
+import com.mjdominiczak.songbook.resolvers.ResourcesResolver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.realm.kotlin.Configuration
 import io.realm.kotlin.Realm
@@ -27,16 +32,15 @@ import javax.inject.Singleton
 object AppModule {
 
     @Provides
+    fun provideGson(): Gson = GsonBuilder()
+        .registerTypeAdapter(Section::class.java, SectionTypeAdapter())
+        .create()
+
+    @Provides
     @Singleton
-    fun provideSongApi(): SongApi = Retrofit.Builder()
+    fun provideSongApi(gson: Gson): SongApi = Retrofit.Builder()
         .baseUrl(Constants.API_BASE_URL)
-        .addConverterFactory(
-            GsonConverterFactory.create(
-                GsonBuilder()
-                    .registerTypeAdapter(Section::class.java, SectionTypeAdapter())
-                    .create()
-            )
-        )
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .client(
             OkHttpClient.Builder()
                 .addInterceptor(
@@ -51,9 +55,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRealmConfiguration(): Configuration = RealmConfiguration.create(
-        schema = setOf(SongDto::class)
-    )
+    fun provideRealmConfiguration(): Configuration =
+        RealmConfiguration.Builder(schema = setOf(SongDto::class, SectionDto::class))
+            .deleteRealmIfMigrationNeeded()
+            .build()
 
     @Provides
     @Singleton
@@ -67,4 +72,8 @@ object AppModule {
     @Singleton
     fun provideSongRepository(api: SongApi, db: SongDatabase): SongRepository =
         SongRepositoryImpl(api = api, db = db)
+
+    @Provides
+    @Singleton
+    fun provideResourcesResolver(@ApplicationContext context: Context) = ResourcesResolver(context)
 }
