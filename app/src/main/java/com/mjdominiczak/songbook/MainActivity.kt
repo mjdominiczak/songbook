@@ -10,15 +10,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mjdominiczak.songbook.data.local.SongDatabase
 import com.mjdominiczak.songbook.presentation.addedit.AddEditSongScreen
 import com.mjdominiczak.songbook.presentation.detail.SongDetailScreen
 import com.mjdominiczak.songbook.presentation.list.SongListScreen
 import com.mjdominiczak.songbook.presentation.navigation.Routes
 import com.mjdominiczak.songbook.presentation.theme.SongbookTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var database: SongDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,6 +34,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        database?.close()
     }
 }
 

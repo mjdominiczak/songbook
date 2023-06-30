@@ -2,10 +2,13 @@ package com.mjdominiczak.songbook.data.local
 
 import com.mjdominiczak.songbook.data.Section
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
 class SectionDto : RealmObject {
+    @PrimaryKey
+    var _id: Int = 0
     var number: Int = 0
     var text: String = ""
     var chords: String? = null

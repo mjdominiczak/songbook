@@ -6,9 +6,7 @@ import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.data.SongRepositoryImpl
-import com.mjdominiczak.songbook.data.local.SectionDto
 import com.mjdominiczak.songbook.data.local.SongDatabase
-import com.mjdominiczak.songbook.data.local.SongDto
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
@@ -18,9 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import io.realm.kotlin.Configuration
-import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
+import io.realm.kotlin.mongodb.App
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -55,18 +51,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRealmConfiguration(): Configuration =
-        RealmConfiguration.Builder(schema = setOf(SongDto::class, SectionDto::class))
-            .deleteRealmIfMigrationNeeded()
-            .build()
+    fun provideRealmApp() = App.create("songbook-agkgp")
 
     @Provides
     @Singleton
-    fun provideRealm(config: Configuration): Realm = Realm.open(configuration = config)
-
-    @Provides
-    @Singleton
-    fun provideSongDatabase(realm: Realm) = SongDatabase(realm)
+    fun provideSongDatabase(app: App) = SongDatabase(app)
 
     @Provides
     @Singleton

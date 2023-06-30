@@ -11,19 +11,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 class SongDto : RealmObject {
     @PrimaryKey
-    var id: Int = 0
+    var _id: Int = 0
     var version: Int = 0
     var title: String = ""
     var titleAlt: String? = null
     var info: String? = null
-//    @Serializable(RealmListKSerializer::class)
     var content: RealmList<SectionDto> = realmListOf()
     var transposition: Int = 0
     var tags: RealmList<String> = realmListOf()
 }
 
 fun Song.toSongDto() = SongDto().apply {
-    id = this@toSongDto.id
+    _id = this@toSongDto.id
     version = this@toSongDto.version
     title = this@toSongDto.title
     titleAlt = this@toSongDto.titleAlt
@@ -34,7 +33,7 @@ fun Song.toSongDto() = SongDto().apply {
 }
 
 fun SongDto.toSong() = Song(
-    id = this.id,
+    id = this._id,
     version = this.version,
     title = this.title,
     titleAlt = this.titleAlt,
