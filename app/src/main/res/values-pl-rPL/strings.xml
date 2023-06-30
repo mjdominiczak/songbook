@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Śpiewnik</string>
     <string name="retry">Jeszcze raz</string>
+    <string name="load_songs">Załaduj piosenki z pliku</string>
     <string name="title">Tytuł</string>
     <string name="add_song">Dodaj piosenkę</string>
     <string name="song_text">Tekst piosenki</string>

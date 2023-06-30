@@ -99,9 +99,9 @@ fun SongListScreen(
             if (state.isLoading) {
                 CircularProgressIndicator()
             } else if (state.error != null || state.songs.isEmpty()) {
-                InfoWithRetryButton(
+                InfoWithLoadButton(
                     text = state.error ?: stringResource(id = R.string.no_songs_available),
-                    onClick = { viewModel.getAllSongs() }
+                    onClick = { viewModel.onLoadSongsClicked() }
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -129,7 +129,7 @@ fun SongListScreen(
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun InfoWithRetryButton(
+private fun InfoWithLoadButton(
     text: String = stringResource(id = R.string.no_songs_available),
     onClick: () -> Unit = {},
 ) {
@@ -145,7 +145,7 @@ private fun InfoWithRetryButton(
             style = MaterialTheme.typography.titleMedium
         )
         Button(onClick = { onClick() }) {
-            Text(text = stringResource(R.string.retry))
+            Text(text = stringResource(R.string.load_songs))
         }
     }
 }

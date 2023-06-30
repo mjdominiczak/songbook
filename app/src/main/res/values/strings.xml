@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Songbook</string>
     <string name="retry">Retry</string>
+    <string name="load_songs">Load songs from file</string>
     <string name="title">Title</string>
     <string name="add_song">Add song</string>
     <string name="song_text">Song text</string>

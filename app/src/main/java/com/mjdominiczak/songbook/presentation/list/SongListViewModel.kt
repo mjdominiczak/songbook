@@ -4,21 +4,32 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
+import com.mjdominiczak.songbook.domain.AddSongUseCase
 import com.mjdominiczak.songbook.domain.ChordCollector
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
+import com.mjdominiczak.songbook.json.SongsData
+import com.mjdominiczak.songbook.resolvers.ResourcesResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.text.Collator
-import java.util.*
+import java.util.Locale
+import java.util.stream.Collectors
 import javax.inject.Inject
 
 @HiltViewModel
 class SongListViewModel @Inject constructor(
-    private val getAllSongsUseCase: GetAllSongsUseCase
+    private val getAllSongsUseCase: GetAllSongsUseCase,
+    private val addSongUseCase: AddSongUseCase,
+    private val resourcesResolver: ResourcesResolver,
+    private val gson: Gson,
 ) : ViewModel() {
 
     private var retryCount = 0
@@ -86,5 +97,16 @@ class SongListViewModel @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         _state.value = _state.value.copy(searchQuery = query)
+    }
+
+    fun onLoadSongsClicked() {
+        viewModelScope.launch {
+            val inputStream = resourcesResolver.getAsset("RRN_2022.json")
+            val json = BufferedReader(InputStreamReader(inputStream))
+                .lines()
+                .collect(Collectors.joining())
+            val songs = gson.fromJson(json, SongsData::class.java)
+            addSongUseCase(songs.data)
+        }
     }
 }

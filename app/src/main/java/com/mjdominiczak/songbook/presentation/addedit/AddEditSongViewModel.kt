@@ -4,16 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.mjdominiczak.songbook.domain.AddSongUseCase
-import com.mjdominiczak.songbook.json.SongsData
 import com.mjdominiczak.songbook.resolvers.ResourcesResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.util.stream.Collectors
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,14 +29,14 @@ class AddEditSongViewModel @Inject constructor(
     }
 
     fun onSaveClicked() {
-        viewModelScope.launch {
-            val inputStream = resourcesResolver.getAsset("RRN_2022.json")
-            val json = BufferedReader(InputStreamReader(inputStream))
-                .lines()
-                .collect(Collectors.joining())
-//            val songs = Json.decodeFromString<SongsData>(json)
-            val songs = gson.fromJson(json, SongsData::class.java)
-            addSongUseCase(songs.data)
-        }
+//        viewModelScope.launch {
+//            val inputStream = resourcesResolver.getAsset("RRN_2022.json")
+//            val json = BufferedReader(InputStreamReader(inputStream))
+//                .lines()
+//                .collect(Collectors.joining())
+////            val songs = Json.decodeFromString<SongsData>(json)
+//            val songs = gson.fromJson(json, SongsData::class.java)
+//            addSongUseCase(songs.data)
+//        }
     }
 }
