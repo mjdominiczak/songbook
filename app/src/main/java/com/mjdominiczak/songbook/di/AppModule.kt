@@ -7,6 +7,8 @@ import com.mjdominiczak.songbook.data.SongRepositoryImpl
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
+import com.mjdominiczak.songbook.resolvers.PreferencesResolver
+import com.mjdominiczak.songbook.resolvers.ResourcesResolver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,4 +49,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSongRepository(api: SongApi): SongRepository = SongRepositoryImpl(api)
+
+    @Provides
+    @Singleton
+    fun providePreferencesResolver(@ApplicationContext context: Context) =
+        PreferencesResolver(context)
 }
