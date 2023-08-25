@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,7 +44,7 @@ fun SongDetailScreen(
     navController: NavController,
     viewModel: SongDetailViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state = viewModel.state
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -76,53 +77,69 @@ fun SongDetailScreen(
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (state.song != null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(vertical = 16.dp)
-                ) {
-                    state.song.info?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Light,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                    state.song.content.forEach { section ->
-                        Box(
-                            modifier = Modifier
-                                .horizontalScroll(rememberScrollState())
-                                .padding(horizontal = 16.dp),
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(vertical = 16.dp)
+                    ) {
+                        state.song.info?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Light,
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        state.song.content.forEach { section ->
+                            Box(
+                                modifier = Modifier
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(horizontal = 16.dp),
+                            ) {
+                                fun Section.getChordsIfNeeded() =
+                                    if (viewModel.displayChords) chords else null
+
+                                when (section) {
+                                    is Section.SimpleSection -> SimpleSectionView(
+                                        text = section.text,
+                                        chords = section.getChordsIfNeeded()
+                                    )
+                                    is Section.Chorus -> ChorusSectionView(
+                                        text = section.text,
+                                        chords = section.getChordsIfNeeded()
+                                    )
+                                    is Section.Verse -> VerseSectionView(
+                                        text = section.text,
+                                        number = section.number,
+                                        chords = section.getChordsIfNeeded(),
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            when (section) {
-                                is Section.SimpleSection -> SimpleSectionView(
-                                    text = section.text,
-                                    chords = section.chords
-                                )
-                                is Section.Chorus -> ChorusSectionView(
-                                    text = section.text,
-                                    chords = section.chords
-                                )
-                                is Section.Verse -> VerseSectionView(
-                                    text = section.text,
-                                    number = section.number,
-                                    chords = section.chords,
-                                )
+                            for (tag in state.song.tags) {
+                                Tag(tag = tag)
                             }
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
                     Row(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        for (tag in state.song.tags) {
-                            Tag(tag = tag)
-                        }
+                        Switch(
+                            checked = viewModel.displayChords,
+                            onCheckedChange = { viewModel.onDisplayChordsChanged(it) }
+                        )
+                        Text(text = "Display chords")
                     }
                 }
             } else {
