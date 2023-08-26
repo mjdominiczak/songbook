@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -34,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.presentation.components.ChorusSectionView
+import com.mjdominiczak.songbook.presentation.components.OptionWithSwitch
 import com.mjdominiczak.songbook.presentation.components.SimpleSectionView
 import com.mjdominiczak.songbook.presentation.components.Tag
 import com.mjdominiczak.songbook.presentation.components.VerseSectionView
@@ -96,7 +96,10 @@ fun SongDetailScreen(
                         state.song.content.forEach { section ->
                             Box(
                                 modifier = Modifier
-                                    .horizontalScroll(rememberScrollState())
+                                    .then(
+                                        if (viewModel.wrapLines) Modifier
+                                        else Modifier.horizontalScroll(rememberScrollState())
+                                    )
                                     .padding(horizontal = 16.dp),
                             ) {
                                 fun Section.getChordsIfNeeded() =
@@ -130,17 +133,16 @@ fun SongDetailScreen(
                             }
                         }
                     }
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Switch(
-                            checked = viewModel.displayChords,
-                            onCheckedChange = { viewModel.onDisplayChordsChanged(it) }
-                        )
-                        Text(text = "Display chords")
-                    }
+                    OptionWithSwitch(
+                        optionText = "Wyświetl akordy",
+                        checked = viewModel.displayChords,
+                        onCheckedChange = { viewModel.onDisplayChordsChanged(it) },
+                    )
+                    OptionWithSwitch(
+                        optionText = "Zawijaj linie",
+                        checked = viewModel.wrapLines,
+                        onCheckedChange = { viewModel.onWrapLinesChanged(it) },
+                    )
                 }
             } else {
                 Text(

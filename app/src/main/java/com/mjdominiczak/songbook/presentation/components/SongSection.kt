@@ -1,6 +1,10 @@
 package com.mjdominiczak.songbook.presentation.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -111,7 +115,7 @@ private fun TextLineWithChords(
         Text(
             text = text,
             style = textStyle,
-            maxLines = 1,
+            maxLines = if (chords != null) 1 else Int.MAX_VALUE,
         )
     }
 }

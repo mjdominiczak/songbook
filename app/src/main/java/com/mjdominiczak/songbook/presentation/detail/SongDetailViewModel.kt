@@ -10,7 +10,6 @@ import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.domain.GetSongUseCase
 import com.mjdominiczak.songbook.resolvers.PreferencesResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -28,21 +27,29 @@ class SongDetailViewModel @Inject constructor(
         get() = _state
 
     var displayChords by mutableStateOf(true)
+    var wrapLines by mutableStateOf(true)
 
     init {
         savedStateHandle.get<Int>("songId")?.let { id ->
             if (id != -1) getSong(id)
         }
-        viewModelScope.launch {
-            preferencesResolver.displayChords.collectLatest {
-                displayChords = it
-            }
-        }
+        preferencesResolver.displayChords.onEach {
+            displayChords = it
+        }.launchIn(viewModelScope)
+        preferencesResolver.wrapLines.onEach {
+            wrapLines = it
+        }.launchIn(viewModelScope)
     }
 
     fun onDisplayChordsChanged(value: Boolean) {
         viewModelScope.launch {
             preferencesResolver.setDisplayChords(value)
+        }
+    }
+
+    fun onWrapLinesChanged(value: Boolean) {
+        viewModelScope.launch {
+            preferencesResolver.setWrapLines(value)
         }
     }
 
