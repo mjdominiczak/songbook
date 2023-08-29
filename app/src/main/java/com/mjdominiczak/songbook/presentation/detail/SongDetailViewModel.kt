@@ -26,6 +26,7 @@ class SongDetailViewModel @Inject constructor(
     val state: SongDetailState
         get() = _state
 
+    var showSettings by mutableStateOf(false)
     var displayChords by mutableStateOf(true)
     var wrapLines by mutableStateOf(true)
 
@@ -39,6 +40,14 @@ class SongDetailViewModel @Inject constructor(
         preferencesResolver.wrapLines.onEach {
             wrapLines = it
         }.launchIn(viewModelScope)
+    }
+
+    fun onSettingsClicked() {
+        showSettings = true
+    }
+
+    fun onSettingsDismissed() {
+        showSettings = false
     }
 
     fun onDisplayChordsChanged(value: Boolean) {
