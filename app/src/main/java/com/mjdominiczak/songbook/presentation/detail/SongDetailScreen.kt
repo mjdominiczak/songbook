@@ -13,11 +13,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -61,13 +63,21 @@ fun SongDetailScreen(
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Wstecz"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.onSettingsClicked() }) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = "Ustawienia"
                         )
                     }
                 },
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -133,16 +143,25 @@ fun SongDetailScreen(
                             }
                         }
                     }
-                    OptionWithSwitch(
-                        optionText = "Wyświetl akordy",
-                        checked = viewModel.displayChords,
-                        onCheckedChange = { viewModel.onDisplayChordsChanged(it) },
-                    )
-                    OptionWithSwitch(
-                        optionText = "Zawijaj linie",
-                        checked = viewModel.wrapLines,
-                        onCheckedChange = { viewModel.onWrapLinesChanged(it) },
-                    )
+                }
+                if (viewModel.showSettings) {
+                    ModalBottomSheet(
+                        onDismissRequest = { viewModel.onSettingsDismissed() },
+                    ) {
+                        OptionWithSwitch(
+                            optionText = "Wyświetl akordy",
+                            checked = viewModel.displayChords,
+                            onCheckedChange = { viewModel.onDisplayChordsChanged(it) },
+                        )
+                        OptionWithSwitch(
+                            optionText = "Zawijaj linie",
+                            checked = viewModel.wrapLines,
+                            onCheckedChange = { viewModel.onWrapLinesChanged(it) },
+                        )
+                        // FIXME: Fix for Modal Bottom Sheet appearing below navigation bar
+                        //  https://issuetracker.google.com/issues/285166602
+                        Spacer(modifier = Modifier.height(56.dp))
+                    }
                 }
             } else {
                 Text(
