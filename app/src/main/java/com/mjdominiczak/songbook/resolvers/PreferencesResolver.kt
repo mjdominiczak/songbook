@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 class PreferencesResolver(private val context: Context) {
 
     val displayChords: Flow<Boolean> = context.dataStore.data.map { it[DISPLAY_CHORDS] ?: true }
-    val wrapLines: Flow<Boolean> = context.dataStore.data.map { it[WRAP_LINES] ?: true }
+    val wrapLines: Flow<Boolean> = context.dataStore.data.map { it[WRAP_LINES] ?: false }
 
     suspend fun setDisplayChords(value: Boolean) {
         context.dataStore.edit {

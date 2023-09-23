@@ -28,18 +28,18 @@ class SongDetailViewModel @Inject constructor(
 
     var showSettings by mutableStateOf(false)
     var displayChords by mutableStateOf(true)
-    var wrapLines by mutableStateOf(true)
+    var wrapLines by mutableStateOf(false)
 
     init {
         savedStateHandle.get<Int>("songId")?.let { id ->
             if (id != -1) getSong(id)
         }
-        preferencesResolver.displayChords.onEach {
-            displayChords = it
-        }.launchIn(viewModelScope)
-        preferencesResolver.wrapLines.onEach {
-            wrapLines = it
-        }.launchIn(viewModelScope)
+        preferencesResolver.displayChords
+            .onEach { displayChords = it }
+            .launchIn(viewModelScope)
+        preferencesResolver.wrapLines
+            .onEach { wrapLines = it }
+            .launchIn(viewModelScope)
     }
 
     fun onSettingsClicked() {

@@ -109,13 +109,11 @@ private fun TextLineWithChords(
                 text = it,
                 style = SongbookTypography.chordsStyle,
                 color = MaterialTheme.colorScheme.primary,
-                maxLines = 1,
             )
         }
         Text(
             text = text,
             style = textStyle,
-            maxLines = if (chords != null) 1 else Int.MAX_VALUE,
         )
     }
 }
