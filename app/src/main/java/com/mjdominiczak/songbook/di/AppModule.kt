@@ -1,5 +1,6 @@
 package com.mjdominiczak.songbook.di
 
+import android.content.Context
 import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
 import com.mjdominiczak.songbook.data.Section
@@ -8,10 +9,10 @@ import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
 import com.mjdominiczak.songbook.resolvers.PreferencesResolver
-import com.mjdominiczak.songbook.resolvers.ResourcesResolver
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
