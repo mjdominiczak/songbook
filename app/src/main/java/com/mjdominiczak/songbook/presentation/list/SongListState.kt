@@ -7,5 +7,6 @@ data class SongListState(
     val songs: List<Song> = emptyList(),
     val error: String? = null,
     val isSearchActive: Boolean = false,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val tagsFilter: Set<String> = setOf("RRN 2022")
 )

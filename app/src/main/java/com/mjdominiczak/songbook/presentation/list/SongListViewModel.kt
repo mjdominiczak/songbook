@@ -8,12 +8,13 @@ import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.ChordCollector
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
+import com.mjdominiczak.songbook.presentation.components.TagParams
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.text.Collator
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,10 +31,37 @@ class SongListViewModel @Inject constructor(
         get() = _state.value.songs
             .filter {
                 _state.value.searchQuery.isEmpty() ||
-                        _state.value.searchQuery.isNotEmpty()
-                        && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
+                    _state.value.searchQuery.isNotEmpty()
+                    && it.title.lowercase().contains(_state.value.searchQuery.lowercase())
+            }
+            .filter {
+                _state.value.tagsFilter.isEmpty() ||
+                    it.tags.containsAll(_state.value.tagsFilter)
             }
             .sortedWith(compareBy(Collator.getInstance(Locale.getDefault())) { it.title })
+
+    val availableTags: List<TagParams>
+        get() = _state.value.songs
+            .asSequence()
+            .flatMap { it.tags }
+            .distinct()
+            .filterNot { it == "RRN 2022" } // Exclude Songbook name for now
+            .sorted()
+            .map {
+                TagParams(
+                    name = it,
+                    selected = it in _state.value.tagsFilter,
+                    onClick = { onTagClicked(it) }
+                )
+            }
+            .toList()
+
+    private fun onTagClicked(tag: String) {
+        val tagsSet = _state.value.tagsFilter.toMutableSet().apply {
+            if (!add(tag)) remove(tag)
+        }.toSet()
+        _state.value = _state.value.copy(tagsFilter = tagsSet)
+    }
 
     init {
         getAllSongs()

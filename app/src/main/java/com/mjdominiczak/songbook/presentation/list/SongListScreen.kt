@@ -6,12 +6,30 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,6 +44,7 @@ import com.mjdominiczak.songbook.R
 import com.mjdominiczak.songbook.presentation.components.InitialStickyHeader
 import com.mjdominiczak.songbook.presentation.components.SongListItem
 import com.mjdominiczak.songbook.presentation.components.SongbookAppBarWithSearch
+import com.mjdominiczak.songbook.presentation.components.Tag
 import com.mjdominiczak.songbook.presentation.navigation.Routes
 import kotlinx.coroutines.launch
 
@@ -96,23 +115,41 @@ fun SongListScreen(
                     onClick = { viewModel.getAllSongs() }
                 )
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    viewModel.songsFiltered
-                        .groupBy { it.title[0] }
-                        .forEach { (initial, listOfSongs) ->
-                            stickyHeader {
-                                InitialStickyHeader(initial = initial)
-                            }
-                            itemsIndexed(listOfSongs) { index, song ->
-                                SongListItem(
-                                    song = song,
-                                    onClick = { navController.navigate(Routes.songDetailRoute(song.id)) }
-                                )
-                                if (index < listOfSongs.size - 1) {
-                                    Divider()
-                                }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (state.isSearchActive) {
+                        LazyRow(
+                            contentPadding = PaddingValues(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(viewModel.availableTags) {
+                                Tag(params = it)
                             }
                         }
+                    }
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        viewModel.songsFiltered
+                            .groupBy { it.title[0] }
+                            .forEach { (initial, listOfSongs) ->
+                                stickyHeader {
+                                    InitialStickyHeader(initial = initial)
+                                }
+                                itemsIndexed(listOfSongs) { index, song ->
+                                    SongListItem(
+                                        song = song,
+                                        onClick = {
+                                            navController.navigate(
+                                                Routes.songDetailRoute(
+                                                    song.id
+                                                )
+                                            )
+                                        }
+                                    )
+                                    if (index < listOfSongs.size - 1) {
+                                        Divider()
+                                    }
+                                }
+                            }
+                    }
                 }
             }
         }

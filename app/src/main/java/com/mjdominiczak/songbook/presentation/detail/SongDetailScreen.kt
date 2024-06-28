@@ -1,7 +1,15 @@
 package com.mjdominiczak.songbook.presentation.detail
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -31,9 +39,10 @@ import com.mjdominiczak.songbook.presentation.components.ChorusSectionView
 import com.mjdominiczak.songbook.presentation.components.OptionWithSwitch
 import com.mjdominiczak.songbook.presentation.components.SimpleSectionView
 import com.mjdominiczak.songbook.presentation.components.Tag
+import com.mjdominiczak.songbook.presentation.components.TagParams
 import com.mjdominiczak.songbook.presentation.components.VerseSectionView
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SongDetailScreen(
     navController: NavController,
@@ -127,12 +136,13 @@ fun SongDetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                         Spacer(modifier = Modifier.height(20.dp))
-                        Row(
+                        FlowRow(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            for (tag in state.song.tags) {
-                                Tag(tag = tag)
+                            state.song.tags.forEach { tag ->
+                                Tag(params = TagParams(name = tag))
                             }
                         }
                     }
