@@ -10,12 +10,12 @@ plugins {
 }
 
 android {
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.mjdominiczak.songbook"
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 8
         versionName "0.0.8"
 
