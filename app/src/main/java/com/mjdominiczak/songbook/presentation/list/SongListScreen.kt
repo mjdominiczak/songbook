@@ -107,7 +107,7 @@ fun SongListScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            if (state.isLoading) {
+            if (state.isLoading && state.songs.isEmpty()) {
                 CircularProgressIndicator()
             } else if (state.error != null || state.songs.isEmpty()) {
                 InfoWithRetryButton(

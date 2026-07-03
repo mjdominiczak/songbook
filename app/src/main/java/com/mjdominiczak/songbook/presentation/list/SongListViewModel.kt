@@ -4,21 +4,25 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
-import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
+import com.mjdominiczak.songbook.domain.ObserveAllSongsUseCase
+import com.mjdominiczak.songbook.domain.RefreshAllSongsUseCase
 import com.mjdominiczak.songbook.presentation.components.TagParams
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.launchIn
+import retrofit2.HttpException
 import java.text.Collator
 import java.util.Locale
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class SongListViewModel @Inject constructor(
-    private val getAllSongsUseCase: GetAllSongsUseCase
+    private val refreshAllSongsUseCase: RefreshAllSongsUseCase,
+    observeAllSongsUseCase: ObserveAllSongsUseCase,
 ) : ViewModel() {
 
     private var retryCount = 0
@@ -63,23 +67,29 @@ class SongListViewModel @Inject constructor(
     }
 
     init {
+        observeAllSongsUseCase().onEach(::setData).launchIn(viewModelScope)
         getAllSongs()
     }
 
     fun getAllSongs() {
-        getAllSongsUseCase().onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    if (result.data.isNullOrEmpty() && retryCount < retryLimit) {
-                        scheduleRetry()
-                    } else {
-                        setData(result.data)
-                    }
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                isLoading = true,
+                error = null,
+            )
+            try {
+                val refreshedSongs = refreshAllSongsUseCase()
+                if (refreshedSongs.isEmpty() && _state.value.songs.isEmpty() && retryCount < retryLimit) {
+                    scheduleRetry()
+                } else {
+                    setRefreshFinished()
                 }
-                is Resource.Error -> setError(result.message)
-                is Resource.Loading -> _state.value = SongListState(isLoading = true)
+            } catch (e: HttpException) {
+                setError(e.localizedMessage)
+            } catch (e: IOException) {
+                setError(e.localizedMessage)
             }
-        }.launchIn(viewModelScope)
+        }
     }
 
     private suspend fun scheduleRetry() {
@@ -95,11 +105,19 @@ class SongListViewModel @Inject constructor(
         )
     }
 
+    private fun setRefreshFinished() {
+        _state.value = _state.value.copy(isLoading = false)
+    }
+
     private fun setError(message: String?) {
-        _state.value = _state.value.copy(
-            isLoading = false,
-            error = message ?: "Unexpected error occured"
-        )
+        _state.value = if (_state.value.songs.isEmpty()) {
+            _state.value.copy(
+                isLoading = false,
+                error = message ?: "Unexpected error occured"
+            )
+        } else {
+            _state.value.copy(isLoading = false)
+        }
     }
 
     fun activateSearch() {

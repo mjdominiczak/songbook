@@ -3,6 +3,7 @@ package com.mjdominiczak.songbook.data
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.domain.SongRepository
+import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -15,18 +16,24 @@ class SongRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    override fun observeAllSongs(): Flow<List<Song>> =
+        localDataSource.observeAllSongs()
+
     override suspend fun getAllSongs(): List<Song> {
         val cachedSongs = localDataSource.getAllSongs()
         return try {
-            api.getAllSongs().also { remoteSongs ->
-                localDataSource.replaceAllSongs(remoteSongs)
-            }
+            refreshAllSongs()
         } catch (e: HttpException) {
             cachedSongs.ifEmpty { throw e }
         } catch (e: IOException) {
             cachedSongs.ifEmpty { throw e }
         }
     }
+
+    override suspend fun refreshAllSongs(): List<Song> =
+        api.getAllSongs().also { remoteSongs ->
+            localDataSource.replaceAllSongs(remoteSongs)
+        }
 
     override suspend fun getSongById(id: Int): Song {
         val cachedSong = localDataSource.getSongById(id)

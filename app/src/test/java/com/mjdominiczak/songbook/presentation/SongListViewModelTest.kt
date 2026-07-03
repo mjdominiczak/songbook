@@ -2,8 +2,11 @@ package com.mjdominiczak.songbook.presentation
 
 import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.data.Song
-import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
+import com.mjdominiczak.songbook.domain.ObserveAllSongsUseCase
+import com.mjdominiczak.songbook.domain.RefreshAllSongsUseCase
 import com.mjdominiczak.songbook.domain.SongRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.mjdominiczak.songbook.presentation.list.SongListViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
@@ -77,11 +80,24 @@ class SongListViewModelTest {
         assertThat(viewModel.songsFiltered).isEmpty()
     }
 
+    @Test
+    fun init_withSavedSongs_receivesSongsFromObservationPath() = runTest(coroutineRule.dispatcher) {
+        val savedSongs = listOf(song(id = 4, title = "Saved song"))
+
+        val viewModel = songListViewModel(songs = savedSongs)
+
+        assertThat(viewModel.state.value.songs).isEqualTo(savedSongs)
+        assertThat(viewModel.state.value.isLoading).isFalse()
+    }
+
     private fun TestScope.songListViewModel(
         songs: List<Song> = defaultSongs,
     ): SongListViewModel {
-        val repository = FakeSongRepository(songs)
-        return SongListViewModel(GetAllSongsUseCase(repository)).also {
+        val repository = FakeSongRepository(observedSongs = songs)
+        return SongListViewModel(
+            RefreshAllSongsUseCase(repository),
+            ObserveAllSongsUseCase(repository),
+        ).also {
             advanceUntilIdle()
         }
     }
@@ -103,12 +119,20 @@ class SongListViewModelTest {
 }
 
 private class FakeSongRepository(
-    private val songs: List<Song>,
+    observedSongs: List<Song>,
 ) : SongRepository {
+    private val observedSongs = MutableStateFlow(observedSongs)
+    private val refreshedSongs = emptyList<Song>()
+
     override suspend fun addSong(song: Song): Unit =
         error("addSong is not used by SongListViewModelTest")
 
-    override suspend fun getAllSongs(): List<Song> = songs
+    override fun observeAllSongs(): Flow<List<Song>> = observedSongs
+
+    override suspend fun getAllSongs(): List<Song> =
+        error("getAllSongs is not used by SongListViewModelTest")
+
+    override suspend fun refreshAllSongs(): List<Song> = refreshedSongs
 
     override suspend fun getSongById(id: Int): Song =
         error("getSongById is not used by SongListViewModelTest")

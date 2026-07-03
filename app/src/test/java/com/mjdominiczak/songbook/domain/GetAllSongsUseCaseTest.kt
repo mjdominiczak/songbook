@@ -3,6 +3,7 @@ package com.mjdominiczak.songbook.domain
 import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -52,8 +53,14 @@ private class FakeSongRepository : SongRepository {
     override suspend fun addSong(song: Song): Unit =
         error("addSong is not used by GetAllSongsUseCase")
 
+    override fun observeAllSongs(): Flow<List<Song>> =
+        error("observeAllSongs is not used by GetAllSongsUseCase")
+
     override suspend fun getAllSongs(): List<Song> =
         allSongsResult.getOrThrow()
+
+    override suspend fun refreshAllSongs(): List<Song> =
+        error("refreshAllSongs is not used by GetAllSongsUseCase")
 
     override suspend fun getSongById(id: Int): Song =
         error("getSongById is not used by GetAllSongsUseCase")

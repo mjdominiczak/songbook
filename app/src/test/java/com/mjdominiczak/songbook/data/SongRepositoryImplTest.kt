@@ -3,6 +3,9 @@ package com.mjdominiczak.songbook.data
 import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.data.remote.SongApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.fail
 import org.junit.Test
@@ -13,6 +16,27 @@ class SongRepositoryImplTest {
     private val api = FakeSongApi()
     private val localDataSource = FakeSongLocalDataSource()
     private val repository = SongRepositoryImpl(api, localDataSource)
+
+    @Test
+    fun observeAllSongs_emitsSongsFromLocalStorage() = runTest {
+        val cachedSongs = listOf(song(id = 1, title = "Cached"))
+        localDataSource.replaceAllSongs(cachedSongs)
+
+        val result = repository.observeAllSongs().first()
+
+        assertThat(result).isEqualTo(cachedSongs)
+    }
+
+    @Test
+    fun refreshAllSongs_withSuccessfulNetwork_persistsRemoteSongs() = runTest {
+        val remoteSongs = listOf(song(id = 2, title = "Remote"))
+        api.allSongs = remoteSongs
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(remoteSongs)
+        assertThat(localDataSource.getAllSongs()).isEqualTo(remoteSongs)
+    }
 
     @Test
     fun getAllSongs_withSuccessfulNetwork_returnsRemoteSongsAndPersistsThem() = runTest {
@@ -111,6 +135,9 @@ private class FakeSongApi : SongApi {
 
 private class FakeSongLocalDataSource : SongLocalDataSource {
     private val songs = linkedMapOf<Int, Song>()
+    private val observedSongs = MutableStateFlow<List<Song>>(emptyList())
+
+    override fun observeAllSongs(): Flow<List<Song>> = observedSongs
 
     override suspend fun getAllSongs(): List<Song> = songs.values.toList()
 
@@ -119,9 +146,11 @@ private class FakeSongLocalDataSource : SongLocalDataSource {
     override suspend fun replaceAllSongs(songs: List<Song>) {
         this.songs.clear()
         songs.forEach { this.songs[it.id] = it }
+        observedSongs.value = getAllSongs()
     }
 
     override suspend fun upsertSong(song: Song) {
         songs[song.id] = song
+        observedSongs.value = getAllSongs()
     }
 }
