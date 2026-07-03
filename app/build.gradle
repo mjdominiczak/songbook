@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'kotlin-kapt'
-    id 'dagger.hilt.android.plugin'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -45,6 +45,13 @@ sqliteJdbcTmpDir.mkdirs()
 tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach {
     kaptProcessJvmArgs.add("-Dorg.sqlite.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
     kaptProcessJvmArgs.add("-Djava.io.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
+}
+
+kapt {
+    correctErrorTypes true
+    arguments {
+        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+    }
 }
 
 dependencies {
