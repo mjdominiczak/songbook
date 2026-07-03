@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mjdominiczak.songbook.common.Resource
 import com.mjdominiczak.songbook.data.Song
-import com.mjdominiczak.songbook.domain.ChordCollector
 import com.mjdominiczak.songbook.domain.GetAllSongsUseCase
 import com.mjdominiczak.songbook.presentation.components.TagParams
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -75,7 +74,6 @@ class SongListViewModel @Inject constructor(
                         scheduleRetry()
                     } else {
                         setData(result.data)
-                        result.data?.let { ChordCollector(it).parseChords() }
                     }
                 }
                 is Resource.Error -> setError(result.message)

@@ -13,7 +13,7 @@ The app is written in Kotlin with Jetpack Compose. It uses Hilt for dependency i
 - The data layer is online-only. Songs are fetched directly from the remote API; there is no Room cache or offline fallback.
 - Add/edit song UI exists, but saving is not implemented. Do not assume user-created songs work.
 - The list screen has a hidden add FAB and some placeholder behavior.
-- Chord parsing/transposition code exists, but it is not yet a polished user-facing feature.
+- Song details can display chord strings from the API, but there is no chord parsing or transposition feature.
 
 ## Build And Test Commands
 
@@ -41,7 +41,7 @@ Runs Android instrumentation tests when a device or emulator is available.
 
 The app follows a light Clean Architecture / MVVM shape:
 
-- `data`: API models, Retrofit service, repository implementation, chord model.
+- `data`: API models, Retrofit service, and repository implementation.
 - `domain`: repository contract and use cases.
 - `presentation`: Compose screens, view models, UI state, navigation, theme, reusable components.
 - `di`: Hilt module wiring Retrofit, repository, and preferences.
@@ -98,19 +98,18 @@ If tests cannot be run or fail for unrelated reasons, state that explicitly and 
 - Add/edit song is incomplete.
 - Search only covers titles; alternate titles, tags, and lyrics are not fully searchable.
 - Tag filtering is hardcoded around the current RRN 2022 tag assumption.
-- Chord transposition is not exposed as a normal detail-screen control.
+- Chord parsing/transposition is not implemented. It remains a possible future feature, but should be rebuilt as tested domain behavior rather than debug list-loading code.
 - Release hardening is minimal: minification is off, API configuration is hardcoded, and logging is not build-type-specific.
 - README is brief and still describes the project as early-stage.
 
 ## Good Next Directions
 
-1. Remove or isolate debug chord collection from the list flow.
-2. Add a local song cache and offline-first loading.
-3. Decide whether add/edit belongs in the mobile app. Either implement it end to end or remove the visible placeholder.
-4. Improve song discovery with richer search and explicit songbook/category filters.
-5. Turn chord transposition into a tested user-facing feature.
-6. Split debug/release API and logging behavior before a production release.
-7. Expand test coverage around filtering, preferences, and chord-related behavior as those areas are changed.
+1. Add a local song cache and offline-first loading.
+2. Decide whether add/edit belongs in the mobile app. Either implement it end to end or remove the visible placeholder.
+3. Improve song discovery with richer search and explicit songbook/category filters.
+4. Consider chord parsing/transposition as a tested user-facing feature.
+5. Split debug/release API and logging behavior before a production release.
+6. Expand test coverage around filtering, preferences, and chord display behavior as those areas are changed.
 
 ## Agent Notes
 
