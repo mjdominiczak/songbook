@@ -6,9 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mjdominiczak.songbook.common.Resource
-import com.mjdominiczak.songbook.domain.GetSongUseCase
-import com.mjdominiczak.songbook.resolvers.PreferencesResolver
+import com.mjdominiczak.songbook.data.Song
+import com.mjdominiczak.songbook.domain.ObserveSongUseCase
+import com.mjdominiczak.songbook.domain.RefreshSongResult
+import com.mjdominiczak.songbook.domain.RefreshSongUseCase
+import com.mjdominiczak.songbook.domain.RefreshSongsError
+import com.mjdominiczak.songbook.resolvers.SongPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -18,8 +21,9 @@ import javax.inject.Inject
 @HiltViewModel
 class SongDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getSongUseCase: GetSongUseCase,
-    private val preferencesResolver: PreferencesResolver,
+    private val observeSongUseCase: ObserveSongUseCase,
+    private val refreshSongUseCase: RefreshSongUseCase,
+    private val preferencesResolver: SongPreferences,
 ) : ViewModel() {
 
     private var _state by mutableStateOf(SongDetailState())
@@ -32,7 +36,10 @@ class SongDetailViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<Int>("songId")?.let { id ->
-            if (id != -1) getSong(id)
+            if (id != -1) {
+                observeSong(id)
+                refreshSong(id)
+            }
         }
         preferencesResolver.displayChords
             .onEach { displayChords = it }
@@ -62,19 +69,54 @@ class SongDetailViewModel @Inject constructor(
         }
     }
 
-    private fun getSong(id: Int) {
-        getSongUseCase(id).onEach { result ->
-            _state = when (result) {
-                is Resource.Success -> {
-                    SongDetailState(song = result.data)
-                }
-                is Resource.Error -> {
-                    SongDetailState(error = result.message ?: "Unexpected error occured")
-                }
-                is Resource.Loading -> {
-                    SongDetailState(isLoading = true)
-                }
+    private fun observeSong(id: Int) {
+        observeSongUseCase(id).onEach(::setData).launchIn(viewModelScope)
+    }
+
+    private fun refreshSong(id: Int) {
+        viewModelScope.launch {
+            _state = _state.copy(
+                isInitialLoading = _state.song == null,
+                isRefreshing = true,
+                blockingError = null,
+            )
+
+            when (val result = refreshSongUseCase(id)) {
+                is RefreshSongResult.Success -> setRefreshFinished()
+                is RefreshSongResult.Failure -> setRefreshError(result.error)
             }
-        }.launchIn(viewModelScope)
+        }
+    }
+
+    private fun setData(song: Song?) {
+        _state = _state.copy(
+            song = song,
+            isInitialLoading = song == null && _state.isRefreshing,
+            blockingError = if (song == null) _state.blockingError else null,
+        )
+    }
+
+    private fun setRefreshFinished() {
+        _state = _state.copy(
+            isInitialLoading = _state.song == null,
+            isRefreshing = false,
+            blockingError = null,
+        )
+    }
+
+    private fun setRefreshError(error: RefreshSongsError) {
+        _state = if (_state.song == null) {
+            _state.copy(
+                isInitialLoading = false,
+                isRefreshing = false,
+                blockingError = error,
+            )
+        } else {
+            _state.copy(
+                isInitialLoading = false,
+                isRefreshing = false,
+                blockingError = null,
+            )
+        }
     }
 }

@@ -7,6 +7,11 @@ sealed class RefreshAllSongsResult {
     data class Failure(val error: RefreshSongsError) : RefreshAllSongsResult()
 }
 
+sealed class RefreshSongResult {
+    data class Success(val song: Song) : RefreshSongResult()
+    data class Failure(val error: RefreshSongsError) : RefreshSongResult()
+}
+
 enum class RefreshSongsError {
     Timeout,
     NetworkUnavailable,

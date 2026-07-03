@@ -9,9 +9,13 @@ interface SongRepository {
 
     fun observeAllSongs(): Flow<List<Song>>
 
+    fun observeSongById(id: Int): Flow<Song?>
+
     suspend fun getAllSongs(): List<Song>
 
     suspend fun refreshAllSongs(): RefreshAllSongsResult
+
+    suspend fun refreshSongById(id: Int): RefreshSongResult
 
     suspend fun getSongById(id: Int): Song
 

@@ -3,6 +3,7 @@ package com.mjdominiczak.songbook.data
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongResult
 import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.domain.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,9 @@ class SongRepositoryImpl @Inject constructor(
 
     override fun observeAllSongs(): Flow<List<Song>> =
         localDataSource.observeAllSongs()
+
+    override fun observeSongById(id: Int): Flow<Song?> =
+        localDataSource.observeSongById(id)
 
     override suspend fun getAllSongs(): List<Song> {
         val cachedSongs = localDataSource.getAllSongs()
@@ -43,16 +47,22 @@ class SongRepositoryImpl @Inject constructor(
             RefreshAllSongsResult.Failure(e.toRefreshSongsError())
         }
 
+    override suspend fun refreshSongById(id: Int): RefreshSongResult =
+        try {
+            val remoteSong = api.getSongById(id)
+            localDataSource.upsertSong(remoteSong)
+            RefreshSongResult.Success(remoteSong)
+        } catch (e: HttpException) {
+            RefreshSongResult.Failure(e.toRefreshSongsError())
+        } catch (e: IOException) {
+            RefreshSongResult.Failure(e.toRefreshSongsError())
+        }
+
     override suspend fun getSongById(id: Int): Song {
         val cachedSong = localDataSource.getSongById(id)
-        return try {
-            api.getSongById(id).also { remoteSong ->
-                localDataSource.upsertSong(remoteSong)
-            }
-        } catch (e: HttpException) {
-            cachedSong ?: throw e
-        } catch (e: IOException) {
-            cachedSong ?: throw e
+        return when (val result = refreshSongById(id)) {
+            is RefreshSongResult.Success -> result.song
+            is RefreshSongResult.Failure -> cachedSong ?: throw IOException("Refresh failed: ${result.error}")
         }
     }
 

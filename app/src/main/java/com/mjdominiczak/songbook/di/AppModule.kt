@@ -15,6 +15,7 @@ import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
 import com.mjdominiczak.songbook.resolvers.PreferencesResolver
+import com.mjdominiczak.songbook.resolvers.SongPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -78,6 +79,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferencesResolver(@ApplicationContext context: Context) =
+    fun providePreferencesResolver(@ApplicationContext context: Context): SongPreferences =
         PreferencesResolver(context)
 }

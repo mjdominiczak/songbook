@@ -5,6 +5,7 @@ import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.ObserveAllSongsUseCase
 import com.mjdominiczak.songbook.domain.RefreshAllSongsUseCase
 import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongResult
 import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.domain.SongRepository
 import kotlinx.coroutines.flow.Flow
@@ -238,6 +239,9 @@ private class FakeSongRepository(
 
     override fun observeAllSongs(): Flow<List<Song>> = observedSongs
 
+    override fun observeSongById(id: Int): Flow<Song?> =
+        error("observeSongById is not used by SongListViewModelTest")
+
     override suspend fun getAllSongs(): List<Song> =
         error("getAllSongs is not used by SongListViewModelTest")
 
@@ -245,6 +249,9 @@ private class FakeSongRepository(
         refreshCalls++
         return refreshBlock()
     }
+
+    override suspend fun refreshSongById(id: Int): RefreshSongResult =
+        error("refreshSongById is not used by SongListViewModelTest")
 
     override suspend fun getSongById(id: Int): Song =
         error("getSongById is not used by SongListViewModelTest")

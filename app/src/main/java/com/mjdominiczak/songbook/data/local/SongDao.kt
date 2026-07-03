@@ -17,6 +17,9 @@ interface SongDao {
     suspend fun getAllSongs(): List<SongEntity>
 
     @Query("SELECT * FROM songs WHERE id = :id LIMIT 1")
+    fun observeSongById(id: Int): Flow<SongEntity?>
+
+    @Query("SELECT * FROM songs WHERE id = :id LIMIT 1")
     suspend fun getSongById(id: Int): SongEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

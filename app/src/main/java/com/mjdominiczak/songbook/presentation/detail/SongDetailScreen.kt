@@ -29,12 +29,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mjdominiczak.songbook.R
 import com.mjdominiczak.songbook.data.Section
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.presentation.components.ChorusSectionView
 import com.mjdominiczak.songbook.presentation.components.OptionWithSwitch
 import com.mjdominiczak.songbook.presentation.components.SimpleSectionView
@@ -168,10 +171,20 @@ fun SongDetailScreen(
                 }
             } else {
                 Text(
-                    text = state.error ?: "Unexpected error occured",
+                    text = state.blockingError?.let { refreshErrorMessage(it) }
+                        ?: stringResource(R.string.song_refresh_error_unknown),
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
         }
     }
 }
+
+@Composable
+private fun refreshErrorMessage(error: RefreshSongsError): String =
+    when (error) {
+        RefreshSongsError.Timeout -> stringResource(R.string.song_refresh_error_timeout)
+        RefreshSongsError.NetworkUnavailable -> stringResource(R.string.song_refresh_error_network_unavailable)
+        RefreshSongsError.ServerUnavailable -> stringResource(R.string.song_refresh_error_server_unavailable)
+        RefreshSongsError.Unknown -> stringResource(R.string.song_refresh_error_unknown)
+    }

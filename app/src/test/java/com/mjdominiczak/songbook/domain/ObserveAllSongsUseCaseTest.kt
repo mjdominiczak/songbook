@@ -39,11 +39,17 @@ private class FakeObserveSongRepository : SongRepository {
 
     override fun observeAllSongs(): Flow<List<Song>> = savedSongs
 
+    override fun observeSongById(id: Int): Flow<Song?> =
+        error("observeSongById is not used by ObserveAllSongsUseCaseTest")
+
     override suspend fun getAllSongs(): List<Song> =
         error("getAllSongs is not used by ObserveAllSongsUseCaseTest")
 
     override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         error("refreshAllSongs is not used by ObserveAllSongsUseCaseTest")
+
+    override suspend fun refreshSongById(id: Int): RefreshSongResult =
+        error("refreshSongById is not used by ObserveAllSongsUseCaseTest")
 
     override suspend fun getSongById(id: Int): Song =
         error("getSongById is not used by ObserveAllSongsUseCaseTest")

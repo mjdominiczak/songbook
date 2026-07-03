@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongResult
 import com.mjdominiczak.songbook.domain.RefreshSongsError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,6 +49,38 @@ class SongRepositoryImplTest {
 
         assertThat(result).isEqualTo(
             RefreshAllSongsResult.Failure(RefreshSongsError.NetworkUnavailable)
+        )
+    }
+
+    @Test
+    fun observeSongById_emitsSongFromLocalStorage() = runTest {
+        val cachedSong = song(id = 7, title = "Cached detail")
+        localDataSource.upsertSong(cachedSong)
+
+        val result = repository.observeSongById(7).first()
+
+        assertThat(result).isEqualTo(cachedSong)
+    }
+
+    @Test
+    fun refreshSongById_withSuccessfulNetwork_persistsRemoteSong() = runTest {
+        val remoteSong = song(id = 8, title = "Remote detail")
+        api.songById = remoteSong
+
+        val result = repository.refreshSongById(8)
+
+        assertThat(result).isEqualTo(RefreshSongResult.Success(remoteSong))
+        assertThat(localDataSource.getSongById(8)).isEqualTo(remoteSong)
+    }
+
+    @Test
+    fun refreshSongById_withNetworkFailure_returnsTypedFailure() = runTest {
+        api.songByIdError = IOException("No network")
+
+        val result = repository.refreshSongById(9)
+
+        assertThat(result).isEqualTo(
+            RefreshSongResult.Failure(RefreshSongsError.NetworkUnavailable)
         )
     }
 
@@ -149,8 +182,12 @@ private class FakeSongApi : SongApi {
 private class FakeSongLocalDataSource : SongLocalDataSource {
     private val songs = linkedMapOf<Int, Song>()
     private val observedSongs = MutableStateFlow<List<Song>>(emptyList())
+    private val observedSongById = linkedMapOf<Int, MutableStateFlow<Song?>>()
 
     override fun observeAllSongs(): Flow<List<Song>> = observedSongs
+
+    override fun observeSongById(id: Int): Flow<Song?> =
+        observedSongById.getOrPut(id) { MutableStateFlow(songs[id]) }
 
     override suspend fun getAllSongs(): List<Song> = songs.values.toList()
 
@@ -160,10 +197,12 @@ private class FakeSongLocalDataSource : SongLocalDataSource {
         this.songs.clear()
         songs.forEach { this.songs[it.id] = it }
         observedSongs.value = getAllSongs()
+        observedSongById.forEach { (id, flow) -> flow.value = this.songs[id] }
     }
 
     override suspend fun upsertSong(song: Song) {
         songs[song.id] = song
         observedSongs.value = getAllSongs()
+        observedSongById.getOrPut(song.id) { MutableStateFlow(null) }.value = song
     }
 }
