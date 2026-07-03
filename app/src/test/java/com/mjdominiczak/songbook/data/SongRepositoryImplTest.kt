@@ -45,6 +45,20 @@ class SongRepositoryImplTest {
     }
 
     @Test
+    fun refreshAllSongs_withEmptyNetworkResponse_returnsServerUnavailableAndKeepsCache() = runTest {
+        val cachedSongs = listOf(song(id = 3, title = "Cached"))
+        localDataSource.replaceAllSongs(cachedSongs)
+        api.allSongs = emptyList()
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+        assertThat(localDataSource.getAllSongs()).isEqualTo(cachedSongs)
+    }
+
+    @Test
     fun refreshAllSongs_withNetworkFailure_returnsTypedFailure() = runTest {
         api.allSongsError = IOException("No network")
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mjdominiczak.songbook.common.RefreshDiagnosticsLogger
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.ObserveSongUseCase
 import com.mjdominiczak.songbook.domain.RefreshSongResult
@@ -75,6 +76,9 @@ class SongDetailViewModel @Inject constructor(
 
     private fun refreshSong(id: Int) {
         viewModelScope.launch {
+            RefreshDiagnosticsLogger.log(
+                "detail refresh requested id=$id hasCachedSong=${_state.song != null}"
+            )
             _state = _state.copy(
                 isInitialLoading = _state.song == null,
                 isRefreshing = true,
@@ -89,6 +93,7 @@ class SongDetailViewModel @Inject constructor(
     }
 
     private fun setData(song: Song?) {
+        RefreshDiagnosticsLogger.log("detail observed song id=${song?.id} hasSong=${song != null}")
         _state = _state.copy(
             song = song,
             isInitialLoading = song == null && _state.isRefreshing,
@@ -97,6 +102,7 @@ class SongDetailViewModel @Inject constructor(
     }
 
     private fun setRefreshFinished() {
+        RefreshDiagnosticsLogger.log("detail refresh finished successfully hasSong=${_state.song != null}")
         _state = _state.copy(
             isInitialLoading = _state.song == null,
             isRefreshing = false,
@@ -105,6 +111,9 @@ class SongDetailViewModel @Inject constructor(
     }
 
     private fun setRefreshError(error: RefreshSongsError) {
+        RefreshDiagnosticsLogger.log(
+            "detail refresh finished with error=$error hasCachedSong=${_state.song != null}"
+        )
         _state = if (_state.song == null) {
             _state.copy(
                 isInitialLoading = false,

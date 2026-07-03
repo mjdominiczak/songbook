@@ -1,5 +1,6 @@
 package com.mjdominiczak.songbook.data
 
+import com.mjdominiczak.songbook.common.RefreshDiagnosticsLogger
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
@@ -29,32 +30,59 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         try {
+            RefreshDiagnosticsLogger.log("repository all-songs remote request started")
             val remoteSongs = api.getAllSongs()
-            localDataSource.replaceAllSongs(remoteSongs)
-            RefreshAllSongsResult.Success
+            RefreshDiagnosticsLogger.log("repository all-songs remote request succeeded count=${remoteSongs.size}")
+            if (remoteSongs.isEmpty()) {
+                RefreshDiagnosticsLogger.log(
+                    "repository all-songs empty response treated as ${RefreshSongsError.ServerUnavailable}"
+                )
+                RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+            } else {
+                localDataSource.replaceAllSongs(remoteSongs)
+                RefreshDiagnosticsLogger.log("repository all-songs cache replace succeeded count=${remoteSongs.size}")
+                RefreshAllSongsResult.Success
+            }
         } catch (e: HttpException) {
-            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository all-songs failed mappedError=$error", e)
+            RefreshAllSongsResult.Failure(error)
         } catch (e: IOException) {
-            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository all-songs failed mappedError=$error", e)
+            RefreshAllSongsResult.Failure(error)
         } catch (e: CancellationException) {
+            RefreshDiagnosticsLogger.log("repository all-songs request cancelled", e)
             throw e
         } catch (e: Exception) {
-            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository all-songs failed mappedError=$error", e)
+            RefreshAllSongsResult.Failure(error)
         }
 
     override suspend fun refreshSongById(id: Int): RefreshSongResult =
         try {
+            RefreshDiagnosticsLogger.log("repository song id=$id remote request started")
             val remoteSong = api.getSongById(id)
+            RefreshDiagnosticsLogger.log("repository song id=$id remote request succeeded")
             localDataSource.upsertSong(remoteSong)
+            RefreshDiagnosticsLogger.log("repository song id=$id cache upsert succeeded")
             RefreshSongResult.Success
         } catch (e: HttpException) {
-            RefreshSongResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository song id=$id failed mappedError=$error", e)
+            RefreshSongResult.Failure(error)
         } catch (e: IOException) {
-            RefreshSongResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository song id=$id failed mappedError=$error", e)
+            RefreshSongResult.Failure(error)
         } catch (e: CancellationException) {
+            RefreshDiagnosticsLogger.log("repository song id=$id request cancelled", e)
             throw e
         } catch (e: Exception) {
-            RefreshSongResult.Failure(e.toRefreshSongsError())
+            val error = e.toRefreshSongsError()
+            RefreshDiagnosticsLogger.log("repository song id=$id failed mappedError=$error", e)
+            RefreshSongResult.Failure(error)
         }
 
     private fun Throwable.toRefreshSongsError(): RefreshSongsError =

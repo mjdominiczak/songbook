@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mjdominiczak.songbook.common.RefreshDiagnosticsLogger
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.ObserveAllSongsUseCase
 import com.mjdominiczak.songbook.domain.RefreshAllSongsUseCase
@@ -69,6 +70,9 @@ class SongListViewModel @Inject constructor(
 
     fun refreshAllSongs() {
         viewModelScope.launch {
+            RefreshDiagnosticsLogger.log(
+                "list refresh requested cachedSongs=${_state.value.songs.size}"
+            )
             _state.value = _state.value.copy(
                 isInitialLoading = _state.value.songs.isEmpty(),
                 isRefreshing = true,
@@ -85,6 +89,7 @@ class SongListViewModel @Inject constructor(
 
     private fun setData(songs: List<Song>?) {
         val savedSongs = songs ?: emptyList()
+        RefreshDiagnosticsLogger.log("list observed saved songs count=${savedSongs.size}")
         _state.value = _state.value.copy(
             songs = savedSongs,
             isInitialLoading = savedSongs.isEmpty() && _state.value.isRefreshing,
@@ -93,6 +98,7 @@ class SongListViewModel @Inject constructor(
     }
 
     private fun setRefreshFinished() {
+        RefreshDiagnosticsLogger.log("list refresh finished successfully")
         _state.value = _state.value.copy(
             isInitialLoading = false,
             isRefreshing = false,
@@ -102,6 +108,9 @@ class SongListViewModel @Inject constructor(
     }
 
     private fun setRefreshError(error: RefreshSongsError) {
+        RefreshDiagnosticsLogger.log(
+            "list refresh finished with error=$error cachedSongs=${_state.value.songs.size}"
+        )
         _state.value = if (_state.value.songs.isEmpty()) {
             _state.value.copy(
                 isInitialLoading = false,

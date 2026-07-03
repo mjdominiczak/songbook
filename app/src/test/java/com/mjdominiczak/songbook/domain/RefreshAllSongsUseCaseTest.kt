@@ -34,7 +34,26 @@ class RefreshAllSongsUseCaseTest {
     }
 
     @Test
+    fun invoke_withTwoTransientFailures_retriesTwice() = runTest {
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.Timeout)
+        )
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+        repository.refreshResults.add(RefreshAllSongsResult.Success)
+
+        val result = useCase()
+
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success)
+        assertThat(repository.refreshCalls).isEqualTo(3)
+    }
+
+    @Test
     fun invoke_withRepeatedTransientFailure_returnsTypedFailureAfterRetry() = runTest {
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
         repository.refreshResults.add(
             RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
         )
@@ -47,7 +66,7 @@ class RefreshAllSongsUseCaseTest {
         assertThat(result).isEqualTo(
             RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
         )
-        assertThat(repository.refreshCalls).isEqualTo(2)
+        assertThat(repository.refreshCalls).isEqualTo(3)
     }
 
     @Test

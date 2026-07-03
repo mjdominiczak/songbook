@@ -127,7 +127,7 @@ class SongDetailViewModelTest {
 
             val viewModel = songDetailViewModel(repository = repository)
 
-            assertThat(repository.refreshCalls).isEqualTo(2)
+            assertThat(repository.refreshCalls).isEqualTo(3)
             assertThat(viewModel.state.song).isEqualTo(cachedSong)
             assertThat(viewModel.state.isLoading).isFalse()
             assertThat(viewModel.state.isRefreshing).isFalse()
@@ -144,7 +144,7 @@ class SongDetailViewModelTest {
 
             val viewModel = songDetailViewModel(repository = repository)
 
-            assertThat(repository.refreshCalls).isEqualTo(2)
+            assertThat(repository.refreshCalls).isEqualTo(3)
             assertThat(viewModel.state.song).isNull()
             assertThat(viewModel.state.isLoading).isFalse()
             assertThat(viewModel.state.isRefreshing).isFalse()
