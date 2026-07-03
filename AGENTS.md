@@ -118,3 +118,17 @@ If tests cannot be run or fail for unrelated reasons, state that explicitly and 
 - Use Conventional Commit messages for commits, for example `fix: handle empty song list`, `test: update coroutine rule`, or `docs: refresh agent notes`.
 - Network-dependent changes may require care because the app currently depends on the remote API for real content.
 - If changing dependencies or Android Gradle Plugin configuration, verify both app build and test compilation.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues for `mjdominiczak/songbook`; external PRs are not a triage request surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The canonical triage labels are used unchanged: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo: use root `CONTEXT.md` and `docs/adr/` when they exist. See `docs/agents/domain.md`.
