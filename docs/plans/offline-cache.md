@@ -33,6 +33,26 @@ Default choices: list and detail cache, cache-backed repository behavior, and hy
   - `.\gradlew.bat testDebugUnitTest`
   - `.\gradlew.bat assembleDebug`
 
+## Follow-Up: Local Source Of Truth
+
+Evolve the cache from a fallback mechanism into the app's primary data source. The UI should observe Room flows, while remote API requests run separately and update the database when fresher or different data is available.
+
+Target interface direction:
+
+- Replace one-shot repository reads such as `getAllSongs()` and `getSongById(id)` with observable local streams such as `observeAllSongs(): Flow<List<Song>>` and `observeSongById(id): Flow<Song?>`.
+- Add explicit refresh operations such as `refreshAllSongs()` and `refreshSongById(id)` that fetch from the API and write successful responses into Room.
+- Keep API data out of direct UI rendering paths. Remote responses should update Room, and Room should notify collectors.
+- Let view models collect local flows for list/detail state, then trigger refresh as a separate action during initialization or user refresh.
+- Treat Room as the single source of truth after the first successful sync. Loading and error state should describe refresh status, not replace already available cached content.
+
+General implementation guideline:
+
+- First change DAO methods to expose `Flow<List<SongEntity>>` and `Flow<SongEntity?>`.
+- Add repository observation methods that map entity flows to domain `Song` models.
+- Keep current one-shot methods temporarily if needed for compatibility, but migrate view models to the observable API.
+- Make refresh methods compare or replace remote data in Room transactionally; unchanged remote data should not cause unnecessary UI churn.
+- Test observation and refresh separately: observing emits local data, refresh writes remote data, and network failures preserve existing local emissions.
+
 ## Future Work
 
 - Add a manual refresh action and user-facing sync state if stale data becomes confusing.
