@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.junit.Assert.fail
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
@@ -163,76 +162,6 @@ class SongRepositoryImplTest {
         assertThat(result).isEqualTo(
             RefreshSongResult.Failure(RefreshSongsError.Unknown)
         )
-    }
-
-    @Test
-    fun getAllSongs_withSuccessfulNetwork_returnsRemoteSongsAndPersistsThem() = runTest {
-        val remoteSongs = listOf(song(id = 1, title = "Remote"))
-        api.allSongs = remoteSongs
-
-        val result = repository.getAllSongs()
-
-        assertThat(result).isEqualTo(remoteSongs)
-        assertThat(localDataSource.getAllSongs()).isEqualTo(remoteSongs)
-    }
-
-    @Test
-    fun getAllSongs_withCachedSongsAndNetworkFailure_returnsCachedSongs() = runTest {
-        val cachedSongs = listOf(song(id = 2, title = "Cached"))
-        localDataSource.replaceAllSongs(cachedSongs)
-        api.allSongsError = IOException("No network")
-
-        val result = repository.getAllSongs()
-
-        assertThat(result).isEqualTo(cachedSongs)
-    }
-
-    @Test
-    fun getAllSongs_withEmptyCacheAndNetworkFailure_throwsNetworkError() = runTest {
-        api.allSongsError = IOException("No network")
-
-        assertThrowsIOException {
-            repository.getAllSongs()
-        }
-    }
-
-    @Test
-    fun getSongById_withSuccessfulNetwork_returnsRemoteSongAndPersistsIt() = runTest {
-        val remoteSong = song(id = 3, title = "Remote detail")
-        api.songById = remoteSong
-
-        val result = repository.getSongById(3)
-
-        assertThat(result).isEqualTo(remoteSong)
-        assertThat(localDataSource.getSongById(3)).isEqualTo(remoteSong)
-    }
-
-    @Test
-    fun getSongById_withCachedSongAndNetworkFailure_returnsCachedSong() = runTest {
-        val cachedSong = song(id = 4, title = "Cached detail")
-        localDataSource.upsertSong(cachedSong)
-        api.songByIdError = IOException("No network")
-
-        val result = repository.getSongById(4)
-
-        assertThat(result).isEqualTo(cachedSong)
-    }
-
-    @Test
-    fun getSongById_withEmptyCacheAndNetworkFailure_throwsNetworkError() = runTest {
-        api.songByIdError = IOException("No network")
-
-        assertThrowsIOException {
-            repository.getSongById(5)
-        }
-    }
-
-    private suspend fun assertThrowsIOException(block: suspend () -> Unit) {
-        try {
-            block()
-            fail("Expected IOException")
-        } catch (_: IOException) {
-        }
     }
 
     private fun song(id: Int, title: String) = Song(

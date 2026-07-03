@@ -54,14 +54,16 @@ Keep changes consistent with this structure. Use cases should contain applicatio
 
 Song list:
 
-- The list view model loads all songs via the `GetAllSongsUseCase`.
+- The list view model observes saved songs via `ObserveAllSongsUseCase`.
+- It triggers remote refresh through `RefreshAllSongsUseCase`; successful refreshes write into Room and update the observed list.
 - Songs are filtered by search query and tags in memory.
 - The default tag filter is currently set to the RRN 2022 songbook tag.
 - Tags are derived from the loaded song list.
 
 Song detail:
 
-- The detail view model loads one song by route argument.
+- The detail view model observes one saved song by route argument via `ObserveSongUseCase`.
+- It triggers remote refresh through `RefreshSongUseCase`; successful refreshes write into Room and update the observed detail.
 - Chord visibility and line wrapping are persisted through DataStore.
 - Song sections are rendered according to their section type: simple section, verse, or chorus.
 

@@ -64,10 +64,10 @@ class SongListViewModel @Inject constructor(
 
     init {
         observeAllSongsUseCase().onEach(::setData).launchIn(viewModelScope)
-        getAllSongs()
+        refreshAllSongs()
     }
 
-    fun getAllSongs() {
+    fun refreshAllSongs() {
         viewModelScope.launch {
             _state.value = _state.value.copy(
                 isInitialLoading = _state.value.songs.isEmpty(),

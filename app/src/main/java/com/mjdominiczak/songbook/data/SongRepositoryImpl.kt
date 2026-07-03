@@ -27,16 +27,6 @@ class SongRepositoryImpl @Inject constructor(
     override fun observeSongById(id: Int): Flow<Song?> =
         localDataSource.observeSongById(id)
 
-    override suspend fun getAllSongs(): List<Song> {
-        val cachedSongs = localDataSource.getAllSongs()
-        return when (val result = refreshAllSongs()) {
-            is RefreshAllSongsResult.Success -> result.songs
-            is RefreshAllSongsResult.Failure -> cachedSongs.ifEmpty {
-                throw IOException("Refresh failed: ${result.error}")
-            }
-        }
-    }
-
     override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         try {
             val remoteSongs = api.getAllSongs()
@@ -66,14 +56,6 @@ class SongRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             RefreshSongResult.Failure(e.toRefreshSongsError())
         }
-
-    override suspend fun getSongById(id: Int): Song {
-        val cachedSong = localDataSource.getSongById(id)
-        return when (val result = refreshSongById(id)) {
-            is RefreshSongResult.Success -> result.song
-            is RefreshSongResult.Failure -> cachedSong ?: throw IOException("Refresh failed: ${result.error}")
-        }
-    }
 
     private fun Throwable.toRefreshSongsError(): RefreshSongsError =
         when (this) {

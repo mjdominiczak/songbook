@@ -84,9 +84,6 @@ private class FakeRefreshSongRepository : SongRepository {
     override fun observeSongById(id: Int): Flow<Song?> =
         error("observeSongById is not used by RefreshAllSongsUseCaseTest")
 
-    override suspend fun getAllSongs(): List<Song> =
-        error("getAllSongs is not used by RefreshAllSongsUseCaseTest")
-
     override suspend fun refreshAllSongs(): RefreshAllSongsResult {
         refreshCalls++
         return if (refreshResults.isEmpty()) {
@@ -98,7 +95,4 @@ private class FakeRefreshSongRepository : SongRepository {
 
     override suspend fun refreshSongById(id: Int): RefreshSongResult =
         error("refreshSongById is not used by RefreshAllSongsUseCaseTest")
-
-    override suspend fun getSongById(id: Int): Song =
-        error("getSongById is not used by RefreshAllSongsUseCaseTest")
 }

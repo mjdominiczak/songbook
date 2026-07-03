@@ -124,7 +124,7 @@ fun SongListScreen(
                 InfoWithRetryButton(
                     text = state.blockingError?.let { refreshErrorMessage(it) }
                         ?: stringResource(id = R.string.no_songs_available),
-                    onClick = { viewModel.getAllSongs() }
+                    onClick = { viewModel.refreshAllSongs() }
                 )
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {

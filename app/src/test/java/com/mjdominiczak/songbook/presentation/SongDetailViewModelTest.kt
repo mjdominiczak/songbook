@@ -206,9 +206,6 @@ private class FakeDetailSongRepository(
 
     override fun observeSongById(id: Int): Flow<Song?> = observedSong
 
-    override suspend fun getAllSongs(): List<Song> =
-        error("getAllSongs is not used by SongDetailViewModelTest")
-
     override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         error("refreshAllSongs is not used by SongDetailViewModelTest")
 
@@ -220,9 +217,6 @@ private class FakeDetailSongRepository(
         }
         return result
     }
-
-    override suspend fun getSongById(id: Int): Song =
-        error("getSongById is not used by SongDetailViewModelTest")
 }
 
 private class FakeSongPreferences : SongPreferences {
