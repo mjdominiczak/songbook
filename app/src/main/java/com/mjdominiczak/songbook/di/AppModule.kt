@@ -1,10 +1,16 @@
 package com.mjdominiczak.songbook.di
 
 import android.content.Context
+import androidx.room.Room
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.mjdominiczak.songbook.common.Constants
 import com.mjdominiczak.songbook.data.Section
 import com.mjdominiczak.songbook.data.SongRepositoryImpl
+import com.mjdominiczak.songbook.data.local.RoomSongLocalDataSource
+import com.mjdominiczak.songbook.data.local.SongDao
+import com.mjdominiczak.songbook.data.local.SongDatabase
+import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.domain.SongRepository
 import com.mjdominiczak.songbook.json.SectionTypeAdapter
@@ -26,15 +32,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSongApi(): SongApi = Retrofit.Builder()
+    fun provideGson(): Gson = GsonBuilder()
+        .registerTypeAdapter(Section::class.java, SectionTypeAdapter())
+        .create()
+
+    @Provides
+    @Singleton
+    fun provideSongApi(gson: Gson): SongApi = Retrofit.Builder()
         .baseUrl(Constants.API_BASE_URL)
-        .addConverterFactory(
-            GsonConverterFactory.create(
-                GsonBuilder()
-                    .registerTypeAdapter(Section::class.java, SectionTypeAdapter())
-                    .create()
-            )
-        )
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .client(
             OkHttpClient.Builder()
                 .addInterceptor(
@@ -49,7 +55,26 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSongRepository(api: SongApi): SongRepository = SongRepositoryImpl(api)
+    fun provideSongDatabase(@ApplicationContext context: Context): SongDatabase =
+        Room.databaseBuilder(
+            context,
+            SongDatabase::class.java,
+            "songbook.db",
+        ).build()
+
+    @Provides
+    @Singleton
+    fun provideSongDao(database: SongDatabase): SongDao = database.songDao
+
+    @Provides
+    @Singleton
+    fun provideSongLocalDataSource(dataSource: RoomSongLocalDataSource): SongLocalDataSource =
+        dataSource
+
+    @Provides
+    @Singleton
+    fun provideSongRepository(api: SongApi, localDataSource: SongLocalDataSource): SongRepository =
+        SongRepositoryImpl(api, localDataSource)
 
     @Provides
     @Singleton

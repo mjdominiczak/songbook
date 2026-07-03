@@ -8,22 +8,32 @@ import com.mjdominiczak.songbook.data.Section
 
 class SectionTypeAdapter : TypeAdapter<Section>() {
     override fun write(out: JsonWriter, value: Section) {
+        out.beginObject()
         when (value) {
             is Section.SimpleSection -> {
+                out.name("text")
                 out.value(value.text)
+                out.name("chords")
                 out.value(value.chords)
             }
             is Section.Chorus -> {
+                out.name("number")
                 out.value(value.number)
+                out.name("text")
                 out.value(value.text)
+                out.name("chords")
                 out.value(value.chords)
             }
             is Section.Verse -> {
+                out.name("number")
                 out.value(value.number)
+                out.name("text")
                 out.value(value.text)
+                out.name("chords")
                 out.value(value.chords)
             }
         }
+        out.endObject()
     }
 
     override fun read(reader: JsonReader): Section? {

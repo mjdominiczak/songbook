@@ -38,6 +38,14 @@ android {
     namespace 'com.mjdominiczak.songbook'
 }
 
+def sqliteJdbcTmpDir = layout.buildDirectory.dir("tmp/sqlite-jdbc").get().asFile
+sqliteJdbcTmpDir.mkdirs()
+
+tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach {
+    kaptProcessJvmArgs.add("-Dorg.sqlite.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
+    kaptProcessJvmArgs.add("-Djava.io.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.16.0'
@@ -51,7 +59,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:5.1.0'
     implementation "com.google.dagger:hilt-android:$hilt_version"
     implementation 'androidx.hilt:hilt-navigation-compose:1.2.0'
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
     // Compose
     implementation 'androidx.activity:activity-compose:1.10.1'
@@ -69,6 +80,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'com.google.truth:truth:1.4.4'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    testImplementation "androidx.room:room-testing:$room_version"
 
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'

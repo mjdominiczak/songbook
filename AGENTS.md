@@ -10,7 +10,7 @@ The app is written in Kotlin with Jetpack Compose. It uses Hilt for dependency i
 
 - The production debug app currently builds with `.\gradlew.bat assembleDebug`.
 - JVM unit tests currently pass with `.\gradlew.bat testDebugUnitTest`.
-- The data layer is online-only. Songs are fetched directly from the remote API; there is no Room cache or offline fallback.
+- The data layer is cache-backed with Room. Songs refresh from the remote API when available and fall back to cached data after a successful sync.
 - Add/edit song UI exists, but saving is not implemented. Do not assume user-created songs work.
 - The list screen has a hidden add FAB and some placeholder behavior.
 - Song details can display chord strings from the API, but there is no chord parsing or transposition feature.
@@ -41,7 +41,7 @@ Runs Android instrumentation tests when a device or emulator is available.
 
 The app follows a light Clean Architecture / MVVM shape:
 
-- `data`: API models, Retrofit service, and repository implementation.
+- `data`: API models, Retrofit service, Room cache, and repository implementation.
 - `domain`: repository contract and use cases.
 - `presentation`: Compose screens, view models, UI state, navigation, theme, reusable components.
 - `di`: Hilt module wiring Retrofit, repository, and preferences.
@@ -94,7 +94,6 @@ If tests cannot be run or fail for unrelated reasons, state that explicitly and 
 
 ## Known Product Gaps
 
-- Offline access is missing.
 - Add/edit song is incomplete.
 - Search only covers titles; alternate titles, tags, and lyrics are not fully searchable.
 - Tag filtering is hardcoded around the current RRN 2022 tag assumption.
