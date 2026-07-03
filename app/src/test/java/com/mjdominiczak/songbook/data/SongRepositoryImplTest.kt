@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.data.remote.SongApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.fail
 import org.junit.Test
 import java.io.IOException
 
@@ -35,11 +36,13 @@ class SongRepositoryImplTest {
         assertThat(result).isEqualTo(cachedSongs)
     }
 
-    @Test(expected = IOException::class)
+    @Test
     fun getAllSongs_withEmptyCacheAndNetworkFailure_throwsNetworkError() = runTest {
         api.allSongsError = IOException("No network")
 
-        repository.getAllSongs()
+        assertThrowsIOException {
+            repository.getAllSongs()
+        }
     }
 
     @Test
@@ -64,11 +67,21 @@ class SongRepositoryImplTest {
         assertThat(result).isEqualTo(cachedSong)
     }
 
-    @Test(expected = IOException::class)
+    @Test
     fun getSongById_withEmptyCacheAndNetworkFailure_throwsNetworkError() = runTest {
         api.songByIdError = IOException("No network")
 
-        repository.getSongById(5)
+        assertThrowsIOException {
+            repository.getSongById(5)
+        }
+    }
+
+    private suspend fun assertThrowsIOException(block: suspend () -> Unit) {
+        try {
+            block()
+            fail("Expected IOException")
+        } catch (_: IOException) {
+        }
     }
 
     private fun song(id: Int, title: String) = Song(
