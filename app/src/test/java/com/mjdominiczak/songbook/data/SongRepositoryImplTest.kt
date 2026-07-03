@@ -10,9 +10,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.fail
 import org.junit.Test
+import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 class SongRepositoryImplTest {
 
@@ -53,6 +57,39 @@ class SongRepositoryImplTest {
     }
 
     @Test
+    fun refreshAllSongs_withTimeout_returnsTypedFailure() = runTest {
+        api.allSongsError = SocketTimeoutException("Timed out")
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.Timeout)
+        )
+    }
+
+    @Test
+    fun refreshAllSongs_withTemporaryServerFailure_returnsTypedFailure() = runTest {
+        api.allSongsError = httpException(503)
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+    }
+
+    @Test
+    fun refreshAllSongs_withUnexpectedFailure_returnsUnknownTypedFailure() = runTest {
+        api.allSongsError = IllegalStateException("Bad response shape")
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.Unknown)
+        )
+    }
+
+    @Test
     fun observeSongById_emitsSongFromLocalStorage() = runTest {
         val cachedSong = song(id = 7, title = "Cached detail")
         localDataSource.upsertSong(cachedSong)
@@ -81,6 +118,50 @@ class SongRepositoryImplTest {
 
         assertThat(result).isEqualTo(
             RefreshSongResult.Failure(RefreshSongsError.NetworkUnavailable)
+        )
+    }
+
+    @Test
+    fun refreshSongById_withTimeout_returnsTypedFailure() = runTest {
+        api.songByIdError = SocketTimeoutException("Timed out")
+
+        val result = repository.refreshSongById(10)
+
+        assertThat(result).isEqualTo(
+            RefreshSongResult.Failure(RefreshSongsError.Timeout)
+        )
+    }
+
+    @Test
+    fun refreshSongById_withTemporaryServerFailure_returnsTypedFailure() = runTest {
+        api.songByIdError = httpException(503)
+
+        val result = repository.refreshSongById(11)
+
+        assertThat(result).isEqualTo(
+            RefreshSongResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+    }
+
+    @Test
+    fun refreshSongById_withUnexpectedHttpFailure_returnsUnknownTypedFailure() = runTest {
+        api.songByIdError = httpException(404)
+
+        val result = repository.refreshSongById(12)
+
+        assertThat(result).isEqualTo(
+            RefreshSongResult.Failure(RefreshSongsError.Unknown)
+        )
+    }
+
+    @Test
+    fun refreshSongById_withUnexpectedFailure_returnsUnknownTypedFailure() = runTest {
+        api.songByIdError = IllegalStateException("Bad response shape")
+
+        val result = repository.refreshSongById(13)
+
+        assertThat(result).isEqualTo(
+            RefreshSongResult.Failure(RefreshSongsError.Unknown)
         )
     }
 
@@ -160,13 +241,16 @@ class SongRepositoryImplTest {
         title = title,
         tags = listOf("RRN 2022"),
     )
+
+    private fun httpException(code: Int): HttpException =
+        HttpException(Response.error<Unit>(code, "".toResponseBody(null)))
 }
 
 private class FakeSongApi : SongApi {
     var allSongs: List<Song> = emptyList()
-    var allSongsError: IOException? = null
+    var allSongsError: Exception? = null
     var songById: Song? = null
-    var songByIdError: IOException? = null
+    var songByIdError: Exception? = null
 
     override suspend fun getAllSongs(): List<Song> {
         allSongsError?.let { throw it }

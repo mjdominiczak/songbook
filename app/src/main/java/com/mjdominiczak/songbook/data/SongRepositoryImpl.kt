@@ -6,6 +6,7 @@ import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
 import com.mjdominiczak.songbook.domain.RefreshSongResult
 import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.domain.SongRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 import java.io.IOException
@@ -45,6 +46,10 @@ class SongRepositoryImpl @Inject constructor(
             RefreshAllSongsResult.Failure(e.toRefreshSongsError())
         } catch (e: IOException) {
             RefreshAllSongsResult.Failure(e.toRefreshSongsError())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
         }
 
     override suspend fun refreshSongById(id: Int): RefreshSongResult =
@@ -55,6 +60,10 @@ class SongRepositoryImpl @Inject constructor(
         } catch (e: HttpException) {
             RefreshSongResult.Failure(e.toRefreshSongsError())
         } catch (e: IOException) {
+            RefreshSongResult.Failure(e.toRefreshSongsError())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             RefreshSongResult.Failure(e.toRefreshSongsError())
         }
 
