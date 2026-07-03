@@ -64,7 +64,8 @@ class SongDetailViewModelTest {
         val remoteSong = song(id = 3, title = "Remote")
         val repository = FakeDetailSongRepository(
             savedSong = cachedSong,
-            refreshBlock = { RefreshSongResult.Success(remoteSong) },
+            refreshedSong = remoteSong,
+            refreshBlock = { RefreshSongResult.Success },
         )
 
         val viewModel = songDetailViewModel(repository = repository)
@@ -82,7 +83,8 @@ class SongDetailViewModelTest {
             val remoteSong = song(id = 5, title = "Remote")
             val repository = FakeDetailSongRepository(
                 savedSong = null,
-                refreshBlock = { RefreshSongResult.Success(remoteSong) },
+                refreshedSong = remoteSong,
+                refreshBlock = { RefreshSongResult.Success },
             )
 
             val viewModel = songDetailViewModel(repository = repository)
@@ -100,8 +102,9 @@ class SongDetailViewModelTest {
             val remoteSong = song(id = 6, title = "Remote")
             val repository = FakeDetailSongRepository(
                 savedSong = null,
+                refreshedSong = remoteSong,
                 persistRefreshSuccess = false,
-                refreshBlock = { RefreshSongResult.Success(remoteSong) },
+                refreshBlock = { RefreshSongResult.Success },
             )
 
             val viewModel = songDetailViewModel(repository = repository)
@@ -153,11 +156,12 @@ class SongDetailViewModelTest {
         savedSong: Song?,
         autoAdvance: Boolean = true,
         refreshBlock: suspend () -> RefreshSongResult = {
-            RefreshSongResult.Success(savedSong ?: song(id = 1, title = "Remote"))
+            RefreshSongResult.Success
         },
     ): SongDetailViewModel {
         val repository = FakeDetailSongRepository(
             savedSong = savedSong,
+            refreshedSong = savedSong ?: song(id = 1, title = "Remote"),
             refreshBlock = refreshBlock,
         )
         return songDetailViewModel(repository, autoAdvance)
@@ -191,6 +195,7 @@ class SongDetailViewModelTest {
 
 private class FakeDetailSongRepository(
     savedSong: Song?,
+    private val refreshedSong: Song? = savedSong,
     private val persistRefreshSuccess: Boolean = true,
     private val refreshBlock: suspend () -> RefreshSongResult,
 ) : SongRepository {
@@ -213,7 +218,7 @@ private class FakeDetailSongRepository(
         refreshCalls++
         val result = refreshBlock()
         if (persistRefreshSuccess && result is RefreshSongResult.Success) {
-            observedSong.value = result.song
+            observedSong.value = refreshedSong
         }
         return result
     }

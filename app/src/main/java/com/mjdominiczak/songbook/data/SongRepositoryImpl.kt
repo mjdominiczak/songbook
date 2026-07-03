@@ -31,7 +31,7 @@ class SongRepositoryImpl @Inject constructor(
         try {
             val remoteSongs = api.getAllSongs()
             localDataSource.replaceAllSongs(remoteSongs)
-            RefreshAllSongsResult.Success(remoteSongs)
+            RefreshAllSongsResult.Success
         } catch (e: HttpException) {
             RefreshAllSongsResult.Failure(e.toRefreshSongsError())
         } catch (e: IOException) {
@@ -46,7 +46,7 @@ class SongRepositoryImpl @Inject constructor(
         try {
             val remoteSong = api.getSongById(id)
             localDataSource.upsertSong(remoteSong)
-            RefreshSongResult.Success(remoteSong)
+            RefreshSongResult.Success
         } catch (e: HttpException) {
             RefreshSongResult.Failure(e.toRefreshSongsError())
         } catch (e: IOException) {

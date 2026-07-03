@@ -13,25 +13,23 @@ class RefreshSongUseCaseTest {
 
     @Test
     fun invoke_refreshesSongThroughRepository() = runTest {
-        val remoteSong = song(id = 1, title = "Remote")
-        repository.refreshResults.add(RefreshSongResult.Success(remoteSong))
+        repository.refreshResults.add(RefreshSongResult.Success)
 
         val result = useCase(1)
 
-        assertThat(result).isEqualTo(RefreshSongResult.Success(remoteSong))
+        assertThat(result).isEqualTo(RefreshSongResult.Success)
     }
 
     @Test
     fun invoke_withTransientFailure_retriesOnce() = runTest {
-        val remoteSong = song(id = 2, title = "Remote after retry")
         repository.refreshResults.add(
             RefreshSongResult.Failure(RefreshSongsError.NetworkUnavailable)
         )
-        repository.refreshResults.add(RefreshSongResult.Success(remoteSong))
+        repository.refreshResults.add(RefreshSongResult.Success)
 
         val result = useCase(2)
 
-        assertThat(result).isEqualTo(RefreshSongResult.Success(remoteSong))
+        assertThat(result).isEqualTo(RefreshSongResult.Success)
         assertThat(repository.refreshCalls).isEqualTo(2)
     }
 

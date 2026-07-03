@@ -40,7 +40,7 @@ class SongRepositoryImplTest {
 
         val result = repository.refreshAllSongs()
 
-        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success)
         assertThat(localDataSource.getAllSongs()).isEqualTo(remoteSongs)
     }
 
@@ -105,7 +105,7 @@ class SongRepositoryImplTest {
 
         val result = repository.refreshSongById(8)
 
-        assertThat(result).isEqualTo(RefreshSongResult.Success(remoteSong))
+        assertThat(result).isEqualTo(RefreshSongResult.Success)
         assertThat(localDataSource.getSongById(8)).isEqualTo(remoteSong)
     }
 

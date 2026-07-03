@@ -13,25 +13,23 @@ class RefreshAllSongsUseCaseTest {
 
     @Test
     fun invoke_refreshesSongsThroughRepository() = runTest {
-        val remoteSongs = listOf(song(id = 1, title = "Remote"))
-        repository.refreshResults.add(RefreshAllSongsResult.Success(remoteSongs))
+        repository.refreshResults.add(RefreshAllSongsResult.Success)
 
         val result = useCase()
 
-        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success)
     }
 
     @Test
     fun invoke_withTransientFailure_retriesOnce() = runTest {
-        val remoteSongs = listOf(song(id = 2, title = "Remote after retry"))
         repository.refreshResults.add(
             RefreshAllSongsResult.Failure(RefreshSongsError.NetworkUnavailable)
         )
-        repository.refreshResults.add(RefreshAllSongsResult.Success(remoteSongs))
+        repository.refreshResults.add(RefreshAllSongsResult.Success)
 
         val result = useCase()
 
-        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success)
         assertThat(repository.refreshCalls).isEqualTo(2)
     }
 
@@ -87,7 +85,7 @@ private class FakeRefreshSongRepository : SongRepository {
     override suspend fun refreshAllSongs(): RefreshAllSongsResult {
         refreshCalls++
         return if (refreshResults.isEmpty()) {
-            RefreshAllSongsResult.Success(emptyList())
+            RefreshAllSongsResult.Success
         } else {
             refreshResults.removeFirst()
         }

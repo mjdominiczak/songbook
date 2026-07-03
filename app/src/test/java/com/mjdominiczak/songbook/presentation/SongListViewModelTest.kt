@@ -186,7 +186,7 @@ class SongListViewModelTest {
         songs: List<Song> = defaultSongs,
         autoAdvance: Boolean = true,
         refreshBlock: suspend () -> RefreshAllSongsResult = {
-            RefreshAllSongsResult.Success(emptyList())
+            RefreshAllSongsResult.Success
         },
     ): SongListViewModel {
         val repository = FakeSongRepository(
