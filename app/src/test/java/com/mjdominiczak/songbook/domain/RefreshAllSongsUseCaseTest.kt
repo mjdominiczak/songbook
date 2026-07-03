@@ -14,11 +14,52 @@ class RefreshAllSongsUseCaseTest {
     @Test
     fun invoke_refreshesSongsThroughRepository() = runTest {
         val remoteSongs = listOf(song(id = 1, title = "Remote"))
-        repository.refreshedSongs = remoteSongs
+        repository.refreshResults.add(RefreshAllSongsResult.Success(remoteSongs))
 
         val result = useCase()
 
-        assertThat(result).isEqualTo(remoteSongs)
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
+    }
+
+    @Test
+    fun invoke_withTransientFailure_retriesOnce() = runTest {
+        val remoteSongs = listOf(song(id = 2, title = "Remote after retry"))
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.NetworkUnavailable)
+        )
+        repository.refreshResults.add(RefreshAllSongsResult.Success(remoteSongs))
+
+        val result = useCase()
+
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
+        assertThat(repository.refreshCalls).isEqualTo(2)
+    }
+
+    @Test
+    fun invoke_withRepeatedTransientFailure_returnsTypedFailureAfterRetry() = runTest {
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+        repository.refreshResults.add(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+
+        val result = useCase()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.ServerUnavailable)
+        )
+        assertThat(repository.refreshCalls).isEqualTo(2)
+    }
+
+    @Test
+    fun invoke_withUnknownFailure_doesNotRetry() = runTest {
+        repository.refreshResults.add(RefreshAllSongsResult.Failure(RefreshSongsError.Unknown))
+
+        val result = useCase()
+
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Failure(RefreshSongsError.Unknown))
+        assertThat(repository.refreshCalls).isEqualTo(1)
     }
 
     private fun song(id: Int, title: String) = Song(
@@ -30,7 +71,9 @@ class RefreshAllSongsUseCaseTest {
 }
 
 private class FakeRefreshSongRepository : SongRepository {
-    var refreshedSongs: List<Song> = emptyList()
+    val refreshResults = ArrayDeque<RefreshAllSongsResult>()
+    var refreshCalls = 0
+        private set
 
     override suspend fun addSong(song: Song): Unit =
         error("addSong is not used by RefreshAllSongsUseCaseTest")
@@ -41,7 +84,14 @@ private class FakeRefreshSongRepository : SongRepository {
     override suspend fun getAllSongs(): List<Song> =
         error("getAllSongs is not used by RefreshAllSongsUseCaseTest")
 
-    override suspend fun refreshAllSongs(): List<Song> = refreshedSongs
+    override suspend fun refreshAllSongs(): RefreshAllSongsResult {
+        refreshCalls++
+        return if (refreshResults.isEmpty()) {
+            RefreshAllSongsResult.Success(emptyList())
+        } else {
+            refreshResults.removeFirst()
+        }
+    }
 
     override suspend fun getSongById(id: Int): Song =
         error("getSongById is not used by RefreshAllSongsUseCaseTest")

@@ -6,4 +6,8 @@
     <string name="add_song">Add song</string>
     <string name="song_text">Song text</string>
     <string name="no_songs_available">No songs available</string>
+    <string name="song_refresh_error_timeout">The songbook server did not respond. Try again.</string>
+    <string name="song_refresh_error_network_unavailable">Could not refresh songs. Check your connection and try again.</string>
+    <string name="song_refresh_error_server_unavailable">Could not refresh songs because the server is unavailable. Try again later.</string>
+    <string name="song_refresh_error_unknown">Could not refresh songs. Try again.</string>
 </resources>

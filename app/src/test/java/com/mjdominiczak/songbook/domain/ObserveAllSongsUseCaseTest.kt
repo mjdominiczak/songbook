@@ -42,7 +42,7 @@ private class FakeObserveSongRepository : SongRepository {
     override suspend fun getAllSongs(): List<Song> =
         error("getAllSongs is not used by ObserveAllSongsUseCaseTest")
 
-    override suspend fun refreshAllSongs(): List<Song> =
+    override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         error("refreshAllSongs is not used by ObserveAllSongsUseCaseTest")
 
     override suspend fun getSongById(id: Int): Song =

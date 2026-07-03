@@ -7,16 +7,15 @@ import androidx.lifecycle.viewModelScope
 import com.mjdominiczak.songbook.data.Song
 import com.mjdominiczak.songbook.domain.ObserveAllSongsUseCase
 import com.mjdominiczak.songbook.domain.RefreshAllSongsUseCase
+import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.presentation.components.TagParams
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.launchIn
-import retrofit2.HttpException
+import kotlinx.coroutines.launch
 import java.text.Collator
 import java.util.Locale
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,9 +23,6 @@ class SongListViewModel @Inject constructor(
     private val refreshAllSongsUseCase: RefreshAllSongsUseCase,
     observeAllSongsUseCase: ObserveAllSongsUseCase,
 ) : ViewModel() {
-
-    private var retryCount = 0
-    private val retryLimit = 1
 
     private val _state = mutableStateOf(SongListState())
     val state: State<SongListState> = _state
@@ -74,50 +70,57 @@ class SongListViewModel @Inject constructor(
     fun getAllSongs() {
         viewModelScope.launch {
             _state.value = _state.value.copy(
-                isLoading = true,
-                error = null,
+                isInitialLoading = _state.value.songs.isEmpty(),
+                isRefreshing = true,
+                blockingError = null,
+                nonBlockingRefreshError = null,
             )
-            try {
-                val refreshedSongs = refreshAllSongsUseCase()
-                if (refreshedSongs.isEmpty() && _state.value.songs.isEmpty() && retryCount < retryLimit) {
-                    scheduleRetry()
-                } else {
-                    setRefreshFinished()
-                }
-            } catch (e: HttpException) {
-                setError(e.localizedMessage)
-            } catch (e: IOException) {
-                setError(e.localizedMessage)
+
+            when (val result = refreshAllSongsUseCase()) {
+                is RefreshAllSongsResult.Success -> setRefreshFinished()
+                is RefreshAllSongsResult.Failure -> setRefreshError(result.error)
             }
         }
     }
 
-    private suspend fun scheduleRetry() {
-        retryCount++
-        delay(1500)
-        getAllSongs()
-    }
-
     private fun setData(songs: List<Song>?) {
+        val savedSongs = songs ?: emptyList()
         _state.value = _state.value.copy(
-            isLoading = false,
-            songs = songs ?: emptyList()
+            songs = savedSongs,
+            isInitialLoading = savedSongs.isEmpty() && _state.value.isRefreshing,
+            blockingError = if (savedSongs.isEmpty()) _state.value.blockingError else null,
         )
     }
 
     private fun setRefreshFinished() {
-        _state.value = _state.value.copy(isLoading = false)
+        _state.value = _state.value.copy(
+            isInitialLoading = false,
+            isRefreshing = false,
+            blockingError = null,
+            nonBlockingRefreshError = null,
+        )
     }
 
-    private fun setError(message: String?) {
+    private fun setRefreshError(error: RefreshSongsError) {
         _state.value = if (_state.value.songs.isEmpty()) {
             _state.value.copy(
-                isLoading = false,
-                error = message ?: "Unexpected error occured"
+                isInitialLoading = false,
+                isRefreshing = false,
+                blockingError = error,
+                nonBlockingRefreshError = null,
             )
         } else {
-            _state.value.copy(isLoading = false)
+            _state.value.copy(
+                isInitialLoading = false,
+                isRefreshing = false,
+                blockingError = null,
+                nonBlockingRefreshError = error,
+            )
         }
+    }
+
+    fun onRefreshErrorShown() {
+        _state.value = _state.value.copy(nonBlockingRefreshError = null)
     }
 
     fun activateSearch() {

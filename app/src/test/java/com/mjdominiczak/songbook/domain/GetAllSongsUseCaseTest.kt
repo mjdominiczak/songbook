@@ -59,7 +59,7 @@ private class FakeSongRepository : SongRepository {
     override suspend fun getAllSongs(): List<Song> =
         allSongsResult.getOrThrow()
 
-    override suspend fun refreshAllSongs(): List<Song> =
+    override suspend fun refreshAllSongs(): RefreshAllSongsResult =
         error("refreshAllSongs is not used by GetAllSongsUseCase")
 
     override suspend fun getSongById(id: Int): Song =

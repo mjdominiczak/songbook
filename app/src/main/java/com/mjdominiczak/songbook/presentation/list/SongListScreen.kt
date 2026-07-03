@@ -31,6 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mjdominiczak.songbook.R
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.presentation.components.InitialStickyHeader
 import com.mjdominiczak.songbook.presentation.components.SongListItem
 import com.mjdominiczak.songbook.presentation.components.SongbookAppBarWithSearch
@@ -61,6 +63,8 @@ fun SongListScreen(
     val state = viewModel.state.value
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val nonBlockingRefreshError = state.nonBlockingRefreshError
+    val nonBlockingRefreshErrorText = nonBlockingRefreshError?.let { refreshErrorMessage(it) }
     var fabVisible = false // by remember { mutableStateOf(true) }
 //    val nestedScrollConnection = remember {
 //        object : NestedScrollConnection {
@@ -71,6 +75,13 @@ fun SongListScreen(
 //            }
 //        }
 //    }
+
+    LaunchedEffect(nonBlockingRefreshErrorText) {
+        if (nonBlockingRefreshErrorText != null) {
+            snackbarHostState.showSnackbar(nonBlockingRefreshErrorText)
+            viewModel.onRefreshErrorShown()
+        }
+    }
 
     Scaffold(
 //        modifier = Modifier.nestedScroll(nestedScrollConnection),
@@ -109,9 +120,10 @@ fun SongListScreen(
         ) {
             if (state.isLoading && state.songs.isEmpty()) {
                 CircularProgressIndicator()
-            } else if (state.error != null || state.songs.isEmpty()) {
+            } else if (state.blockingError != null || state.songs.isEmpty()) {
                 InfoWithRetryButton(
-                    text = state.error ?: stringResource(id = R.string.no_songs_available),
+                    text = state.blockingError?.let { refreshErrorMessage(it) }
+                        ?: stringResource(id = R.string.no_songs_available),
                     onClick = { viewModel.getAllSongs() }
                 )
             } else {
@@ -155,6 +167,15 @@ fun SongListScreen(
         }
     }
 }
+
+@Composable
+private fun refreshErrorMessage(error: RefreshSongsError): String =
+    when (error) {
+        RefreshSongsError.Timeout -> stringResource(R.string.song_refresh_error_timeout)
+        RefreshSongsError.NetworkUnavailable -> stringResource(R.string.song_refresh_error_network_unavailable)
+        RefreshSongsError.ServerUnavailable -> stringResource(R.string.song_refresh_error_server_unavailable)
+        RefreshSongsError.Unknown -> stringResource(R.string.song_refresh_error_unknown)
+    }
 
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

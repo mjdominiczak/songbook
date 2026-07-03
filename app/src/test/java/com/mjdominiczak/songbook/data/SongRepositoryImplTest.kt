@@ -3,6 +3,8 @@ package com.mjdominiczak.songbook.data
 import com.google.common.truth.Truth.assertThat
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
 import com.mjdominiczak.songbook.data.remote.SongApi
+import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -34,8 +36,19 @@ class SongRepositoryImplTest {
 
         val result = repository.refreshAllSongs()
 
-        assertThat(result).isEqualTo(remoteSongs)
+        assertThat(result).isEqualTo(RefreshAllSongsResult.Success(remoteSongs))
         assertThat(localDataSource.getAllSongs()).isEqualTo(remoteSongs)
+    }
+
+    @Test
+    fun refreshAllSongs_withNetworkFailure_returnsTypedFailure() = runTest {
+        api.allSongsError = IOException("No network")
+
+        val result = repository.refreshAllSongs()
+
+        assertThat(result).isEqualTo(
+            RefreshAllSongsResult.Failure(RefreshSongsError.NetworkUnavailable)
+        )
     }
 
     @Test

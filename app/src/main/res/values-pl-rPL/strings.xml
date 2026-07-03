@@ -6,4 +6,8 @@
     <string name="add_song">Dodaj piosenkę</string>
     <string name="song_text">Tekst piosenki</string>
     <string name="no_songs_available">Brak dostępnych piosenek</string>
+    <string name="song_refresh_error_timeout">Serwer śpiewnika nie odpowiedział. Spróbuj ponownie.</string>
+    <string name="song_refresh_error_network_unavailable">Nie udało się odświeżyć piosenek. Sprawdź połączenie i spróbuj ponownie.</string>
+    <string name="song_refresh_error_server_unavailable">Nie udało się odświeżyć piosenek, bo serwer jest niedostępny. Spróbuj ponownie później.</string>
+    <string name="song_refresh_error_unknown">Nie udało się odświeżyć piosenek. Spróbuj ponownie.</string>
 </resources>

@@ -1,12 +1,18 @@
 package com.mjdominiczak.songbook.presentation.list
 
 import com.mjdominiczak.songbook.data.Song
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 
 data class SongListState(
-    val isLoading: Boolean = false,
     val songs: List<Song> = emptyList(),
-    val error: String? = null,
+    val isInitialLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val blockingError: RefreshSongsError? = null,
+    val nonBlockingRefreshError: RefreshSongsError? = null,
     val isSearchActive: Boolean = false,
     val searchQuery: String = "",
     val tagsFilter: Set<String> = setOf("RRN 2022")
-)
+) {
+    val isLoading: Boolean
+        get() = isInitialLoading
+}

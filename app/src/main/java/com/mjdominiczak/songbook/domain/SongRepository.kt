@@ -11,7 +11,7 @@ interface SongRepository {
 
     suspend fun getAllSongs(): List<Song>
 
-    suspend fun refreshAllSongs(): List<Song>
+    suspend fun refreshAllSongs(): RefreshAllSongsResult
 
     suspend fun getSongById(id: Int): Song
 

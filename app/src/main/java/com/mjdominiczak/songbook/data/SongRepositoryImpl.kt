@@ -2,10 +2,13 @@ package com.mjdominiczak.songbook.data
 
 import com.mjdominiczak.songbook.data.remote.SongApi
 import com.mjdominiczak.songbook.data.local.SongLocalDataSource
+import com.mjdominiczak.songbook.domain.RefreshAllSongsResult
+import com.mjdominiczak.songbook.domain.RefreshSongsError
 import com.mjdominiczak.songbook.domain.SongRepository
 import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class SongRepositoryImpl @Inject constructor(
@@ -21,18 +24,23 @@ class SongRepositoryImpl @Inject constructor(
 
     override suspend fun getAllSongs(): List<Song> {
         val cachedSongs = localDataSource.getAllSongs()
-        return try {
-            refreshAllSongs()
-        } catch (e: HttpException) {
-            cachedSongs.ifEmpty { throw e }
-        } catch (e: IOException) {
-            cachedSongs.ifEmpty { throw e }
+        return when (val result = refreshAllSongs()) {
+            is RefreshAllSongsResult.Success -> result.songs
+            is RefreshAllSongsResult.Failure -> cachedSongs.ifEmpty {
+                throw IOException("Refresh failed: ${result.error}")
+            }
         }
     }
 
-    override suspend fun refreshAllSongs(): List<Song> =
-        api.getAllSongs().also { remoteSongs ->
+    override suspend fun refreshAllSongs(): RefreshAllSongsResult =
+        try {
+            val remoteSongs = api.getAllSongs()
             localDataSource.replaceAllSongs(remoteSongs)
+            RefreshAllSongsResult.Success(remoteSongs)
+        } catch (e: HttpException) {
+            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
+        } catch (e: IOException) {
+            RefreshAllSongsResult.Failure(e.toRefreshSongsError())
         }
 
     override suspend fun getSongById(id: Int): Song {
@@ -47,4 +55,16 @@ class SongRepositoryImpl @Inject constructor(
             cachedSong ?: throw e
         }
     }
+
+    private fun Throwable.toRefreshSongsError(): RefreshSongsError =
+        when (this) {
+            is SocketTimeoutException -> RefreshSongsError.Timeout
+            is HttpException -> if (code() in 500..599) {
+                RefreshSongsError.ServerUnavailable
+            } else {
+                RefreshSongsError.Unknown
+            }
+            is IOException -> RefreshSongsError.NetworkUnavailable
+            else -> RefreshSongsError.Unknown
+        }
 }
