@@ -9,7 +9,7 @@ The app is written in Kotlin with Jetpack Compose. It uses Hilt for dependency i
 ## Current State
 
 - The production debug app currently builds with `.\gradlew.bat assembleDebug`.
-- Unit tests currently do not compile with `.\gradlew.bat testDebugUnitTest` because the coroutine test rule still uses deprecated `kotlinx-coroutines-test` APIs that are rejected by the current toolchain.
+- JVM unit tests currently pass with `.\gradlew.bat testDebugUnitTest`.
 - The data layer is online-only. Songs are fetched directly from the remote API; there is no Room cache or offline fallback.
 - Add/edit song UI exists, but saving is not implemented. Do not assume user-created songs work.
 - The list screen has a hidden add FAB and some placeholder behavior.
@@ -29,7 +29,7 @@ Builds the debug APK and is the fastest basic production-code verification.
 .\gradlew.bat testDebugUnitTest
 ```
 
-Runs JVM unit tests. At the time this file was written, this command fails at test compilation due to stale coroutine test APIs. Fixing that is a good first cleanup task.
+Runs JVM unit tests.
 
 ```powershell
 .\gradlew.bat connectedDebugAndroidTest
@@ -90,9 +90,7 @@ Before claiming a change is complete, run the narrowest useful verification:
 - For view model, domain, or filtering changes, run or update JVM unit tests.
 - For Compose UI behavior changes, add tests where practical, or at minimum verify manually on an emulator/device if the change is visual or interaction-heavy.
 
-If tests cannot be run or are already broken for unrelated reasons, state that explicitly and include the command output summary.
-
-The first testing improvement should be migrating the coroutine test rule to the modern `kotlinx-coroutines-test` API using `TestScope`, `runTest`, and `StandardTestDispatcher` or `UnconfinedTestDispatcher`.
+If tests cannot be run or fail for unrelated reasons, state that explicitly and include the command output summary.
 
 ## Known Product Gaps
 
@@ -106,13 +104,13 @@ The first testing improvement should be migrating the coroutine test rule to the
 
 ## Good Next Directions
 
-1. Restore a green unit test suite by updating coroutine test infrastructure.
-2. Remove or isolate debug chord collection from the list flow.
-3. Add a local song cache and offline-first loading.
-4. Decide whether add/edit belongs in the mobile app. Either implement it end to end or remove the visible placeholder.
-5. Improve song discovery with richer search and explicit songbook/category filters.
-6. Turn chord transposition into a tested user-facing feature.
-7. Split debug/release API and logging behavior before a production release.
+1. Remove or isolate debug chord collection from the list flow.
+2. Add a local song cache and offline-first loading.
+3. Decide whether add/edit belongs in the mobile app. Either implement it end to end or remove the visible placeholder.
+4. Improve song discovery with richer search and explicit songbook/category filters.
+5. Turn chord transposition into a tested user-facing feature.
+6. Split debug/release API and logging behavior before a production release.
+7. Expand test coverage around filtering, preferences, and chord-related behavior as those areas are changed.
 
 ## Agent Notes
 

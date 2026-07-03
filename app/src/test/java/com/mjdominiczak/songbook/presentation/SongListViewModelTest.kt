@@ -30,9 +30,9 @@ class SongListViewModelTest {
                 emit(
                     Resource.Success(
                         listOf(
-                            Song(1, 1, "asdf", "", ""),
-                            Song(2, 1, "qwer", "", ""),
-                            Song(3, 1, "dgfg", "", ""),
+                            Song(1, 1, "asdf", "", "", tags = listOf("RRN 2022")),
+                            Song(2, 1, "qwer", "", "", tags = listOf("RRN 2022")),
+                            Song(3, 1, "dgfg", "", "", tags = listOf("RRN 2022")),
                         )
                     )
                 )
