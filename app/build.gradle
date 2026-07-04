@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId "com.mjdominiczak.songbook"
@@ -75,7 +75,7 @@ dependencies {
     // Compose
     implementation 'androidx.activity:activity-compose:1.13.0'
     implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_icons_extended_version"
     implementation 'androidx.compose.material3:material3:1.4.0'
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
