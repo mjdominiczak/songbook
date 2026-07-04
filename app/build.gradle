@@ -1,27 +1,32 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.compose'
-    id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'com.google.dagger.hilt.android'
 }
+
+def appExt = rootProject.ext
+def composeVersion = appExt.compose_version
+def coroutinesVersion = appExt.coroutinesVersion
+def hiltVersion = appExt.hilt_version
+def roomVersion = appExt.room_version
 
 android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId "com.mjdominiczak.songbook"
-        minSdk 24
-        targetSdk 36
-        versionCode 10
-        versionName "0.1.0"
+        applicationId = "com.mjdominiczak.songbook"
+        minSdk = 24
+        targetSdk = 36
+        versionCode = 10
+        versionName = "0.1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -33,25 +38,14 @@ android {
         jvmToolchain(17)
     }
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
-    namespace 'com.mjdominiczak.songbook'
+    namespace = 'com.mjdominiczak.songbook'
 }
 
-def sqliteJdbcTmpDir = layout.buildDirectory.dir("tmp/sqlite-jdbc").get().asFile
-sqliteJdbcTmpDir.mkdirs()
-
-tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach {
-    kaptProcessJvmArgs.add("-Dorg.sqlite.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
-    kaptProcessJvmArgs.add("-Djava.io.tmpdir=${sqliteJdbcTmpDir.absolutePath}")
-}
-
-kapt {
-    correctErrorTypes true
-    arguments {
-        arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
-    }
+ksp {
+    arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
 }
 
 dependencies {
@@ -65,12 +59,12 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.4.0'
-    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "com.google.dagger:hilt-android:$hiltVersion"
     implementation 'androidx.hilt:hilt-navigation-compose:1.4.0'
-    implementation "androidx.room:room-runtime:$room_version"
-    implementation "androidx.room:room-ktx:$room_version"
-    kapt "com.google.dagger:hilt-compiler:$hilt_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    ksp "com.google.dagger:hilt-compiler:$hiltVersion"
+    ksp "androidx.room:room-compiler:$roomVersion"
 
     // Compose
     implementation 'androidx.activity:activity-compose:1.13.0'
@@ -88,9 +82,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-inline:5.2.0'
     testImplementation 'com.google.truth:truth:1.4.5'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
-    testImplementation "androidx.room:room-testing:$room_version"
+    testImplementation "androidx.room:room-testing:$roomVersion"
 
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
-    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
 }
