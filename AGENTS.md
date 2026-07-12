@@ -125,7 +125,7 @@ If tests cannot be run or fail for unrelated reasons, state that explicitly and 
 
 ### Issue tracker
 
-Issues are tracked in GitHub Issues for `mjdominiczak/songbook`; external PRs are not a triage request surface. See `docs/agents/issue-tracker.md`.
+Implementation issues are tracked in GitHub Issues for `mjdominiczak/songbook`; cross-repository status is tracked in the shared Songbook Platform Project. External PRs are not a triage request surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
