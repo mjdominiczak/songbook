@@ -2,6 +2,31 @@
 
 Issues and PRDs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
+## Shared control plane
+
+- **Project:** [Songbook Platform](https://github.com/users/mjdominiczak/projects/2), personal Project `#2` owned by `mjdominiczak`.
+- **Parent initiative:** [`mjdominiczak/songs-manager#2`](https://github.com/mjdominiczak/songs-manager/issues/2).
+- Implementation issues live in the repository whose code they change. This repository owns Android work.
+- Add every actionable issue and pull request to the Project:
+
+  ```powershell
+  gh project item-add 2 --owner mjdominiczak --url <issue-or-pr-url>
+  ```
+
+- Do not add long-lived bot dashboards; add their actionable pull requests instead.
+- Set Project fields when creating work: `Phase`, `Area`, and `Priority`. Android work uses `Area: Android`.
+- Project field options are documented in the Project README. Query current field and option IDs with `gh project field-list 2 --owner mjdominiczak --format json` rather than hard-coding them.
+- Use full issue URLs for cross-repository parent, sub-issue, and blocking relationships.
+
+## Lifecycle
+
+1. Create the issue in its owning repository and add it to Project `#2`.
+2. Set `Phase`, `Area`, and `Priority`; connect the parent initiative and blockers.
+3. Apply `ready-for-agent` only when the issue is implementation-ready.
+4. When claimed, assign it and set Project `Status` to `In Progress`.
+5. Link the pull request and apply `ready-for-human` when manual review or action is required.
+6. Close the issue when accepted; closed issues and merged pull requests move to `Done`.
+
 ## Conventions
 
 - **Create an issue**: `gh issue create --title "..." --body "..."`. Use a heredoc for multi-line bodies.
@@ -27,7 +52,7 @@ GitHub shares one number space across issues and PRs, so a bare `#42` may be eit
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue.
+Create a GitHub issue in the owning repository, add it to Project `#2`, and set the shared planning fields.
 
 ## When a skill says "fetch the relevant ticket"
 
