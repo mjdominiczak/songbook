@@ -1,12 +1,14 @@
 prefix_rule(
     pattern=["gh", "pr", ["list", "view", "diff", "checks"]],
     decision="allow",
-    justification="Read-only pull-request inspection for the Songbook repository.",
+    justification="Read-only pull-request inspection for Songbook Platform repositories.",
     match=[
         "gh pr list --repo mjdominiczak/songbook",
         "gh pr view 42 --repo mjdominiczak/songbook",
         "gh pr diff 42 --repo mjdominiczak/songbook",
         "gh pr checks 42 --repo mjdominiczak/songbook",
+        "gh pr view 6 --repo mjdominiczak/songs-manager",
+        "gh pr diff 2 --repo mjdominiczak/songbook-backend",
     ],
     not_match=[
         "gh pr create --repo mjdominiczak/songbook",
@@ -17,19 +19,25 @@ prefix_rule(
 prefix_rule(
     pattern=["gh", "run", ["list", "view", "watch"]],
     decision="allow",
-    justification="Read-only GitHub Actions inspection for the Songbook repository.",
+    justification="Read-only GitHub Actions inspection for Songbook Platform repositories.",
     match=[
         "gh run list --repo mjdominiczak/songbook",
         "gh run view 123 --repo mjdominiczak/songbook",
         "gh run watch 123 --repo mjdominiczak/songbook",
+        "gh run list --repo mjdominiczak/songs-manager",
+        "gh run list --repo mjdominiczak/songbook-backend",
     ],
 )
 
 prefix_rule(
     pattern=["gh", "pr", "create"],
     decision="prompt",
-    justification="Auto-review PR creation so the destination remains pinned to Songbook.",
-    match=["gh pr create --repo mjdominiczak/songbook --base master --head feature/example"],
+    justification="Auto-review PR creation so the destination remains within the Songbook Platform repositories.",
+    match=[
+        "gh pr create --repo mjdominiczak/songbook --base master --head feature/example",
+        "gh pr create --repo mjdominiczak/songs-manager --base main --head feature/example",
+        "gh pr create --repo mjdominiczak/songbook-backend --base main --head feature/example",
+    ],
     not_match=["gh pr merge 42 --repo mjdominiczak/songbook"],
 )
 
@@ -40,6 +48,8 @@ prefix_rule(
     match=[
         "gh issue list --repo mjdominiczak/songbook",
         "gh issue view 42 --repo mjdominiczak/songbook",
+        "gh issue list --repo mjdominiczak/songs-manager",
+        "gh issue view 2 --repo mjdominiczak/songbook-backend",
     ],
     not_match=[
         "gh issue edit 42 --repo mjdominiczak/songbook --add-label ready-for-agent",
@@ -50,13 +60,15 @@ prefix_rule(
 prefix_rule(
     pattern=["gh", "issue", ["create", "edit", "comment", "close", "reopen"]],
     decision="prompt",
-    justification="Auto-review issue mutations so the destination remains pinned to Songbook.",
+    justification="Auto-review issue mutations so the destination remains within the Songbook Platform repositories.",
     match=[
         "gh issue create --repo mjdominiczak/songbook --title example --body example",
         "gh issue edit 42 --repo mjdominiczak/songbook --add-label ready-for-agent",
         "gh issue comment 42 --repo mjdominiczak/songbook --body update",
         "gh issue close 42 --repo mjdominiczak/songbook",
         "gh issue reopen 42 --repo mjdominiczak/songbook",
+        "gh issue create --repo mjdominiczak/songs-manager --title example --body example",
+        "gh issue edit 2 --repo mjdominiczak/songbook-backend --add-label ready-for-agent",
     ],
     not_match=["gh issue delete 42 --repo mjdominiczak/songbook"],
 )
@@ -64,11 +76,44 @@ prefix_rule(
 prefix_rule(
     pattern=["gh", "label", "list"],
     decision="allow",
-    justification="Reading the repository label vocabulary is non-destructive.",
-    match=["gh label list --repo mjdominiczak/songbook"],
+    justification="Reading Songbook Platform repository label vocabularies is non-destructive.",
+    match=[
+        "gh label list --repo mjdominiczak/songbook",
+        "gh label list --repo mjdominiczak/songs-manager",
+        "gh label list --repo mjdominiczak/songbook-backend",
+    ],
     not_match=[
         "gh label create example --repo mjdominiczak/songbook",
         "gh label delete example --repo mjdominiczak/songbook",
+    ],
+)
+
+prefix_rule(
+    pattern=["gh", "project", ["list", "view", "field-list", "item-list"]],
+    decision="allow",
+    justification="Read-only inspection of the personal Songbook Platform Project is non-destructive.",
+    match=[
+        "gh project view 2 --owner mjdominiczak",
+        "gh project field-list 2 --owner mjdominiczak",
+        "gh project item-list 2 --owner mjdominiczak",
+    ],
+    not_match=["gh project delete 2 --owner mjdominiczak"],
+)
+
+prefix_rule(
+    pattern=["gh", "project", ["edit", "link", "item-add", "item-edit"]],
+    decision="prompt",
+    justification="Auto-review bounded coordination changes to personal Songbook Platform Project #2.",
+    match=[
+        "gh project edit 2 --owner mjdominiczak --description example",
+        "gh project link 2 --owner mjdominiczak --repo mjdominiczak/songbook",
+        "gh project item-add 2 --owner mjdominiczak --url https://github.com/mjdominiczak/songbook/issues/22",
+    ],
+    not_match=[
+        "gh project delete 2 --owner mjdominiczak",
+        "gh project close 2 --owner mjdominiczak",
+        "gh project field-delete 2 --owner mjdominiczak --id example",
+        "gh project item-delete 2 --owner mjdominiczak --id example",
     ],
 )
 
