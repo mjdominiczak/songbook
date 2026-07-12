@@ -1,0 +1,44 @@
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+
+[auto_review]
+policy = """
+Approve ordinary and force git pushes when they target a non-default feature
+branch in mjdominiczak/songbook through the origin remote. This includes history
+rewrites using --force, -f, --force-with-lease, --force-if-includes, or a leading
++ refspec. If the command omits the remote, approve it only when the configured
+upstream resolves to that same origin.
+
+Do not approve pushes to another named remote, an explicit URL, or a repository
+other than mjdominiczak/songbook unless the user's current request explicitly
+authorizes that exact destination.
+
+Approve normal git switch operations, including creating a feature branch. Do not
+approve git switch --discard-changes, --force, or -f unless the user's current
+request explicitly authorizes discarding local changes.
+
+Do not approve a push to master or main unless the user's current request explicitly
+authorizes that exact push and target branch.
+
+Do not approve any remote-ref deletion or broad ref update unless the user's
+current request explicitly authorizes the exact operation. Destructive or broad
+forms include --delete, --mirror, --prune, --all, and deletion refspecs such as
+:branch.
+
+Approve gh pr create only for mjdominiczak/songbook and only when it is consistent
+with the user's current task.
+Approve routine gh issue creation, editing, commenting, labeling, assignment,
+closing, and reopening only for mjdominiczak/songbook and only when they are
+consistent with the user's current task. This includes assigning and removing
+labels on issues, but not creating, editing, or deleting the repository's label
+vocabulary.
+
+Approve standard tasks and diagnostics run through the repository's gradlew.bat,
+including the documented build and test commands. Do not approve an invocation
+that supplies an external init script, build file, settings file, project directory,
+or other executable script/configuration override unless the user's current request
+explicitly authorizes that exact file and purpose.
+
+Do not approve issue deletion, label deletion, pull-request merging, or release
+publication unless the user's current request explicitly authorizes that action.
+"""

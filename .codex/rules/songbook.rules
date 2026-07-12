@@ -1,0 +1,116 @@
+prefix_rule(
+    pattern=["gh", "pr", ["list", "view", "diff", "checks"]],
+    decision="allow",
+    justification="Read-only pull-request inspection for the Songbook repository.",
+    match=[
+        "gh pr list --repo mjdominiczak/songbook",
+        "gh pr view 42 --repo mjdominiczak/songbook",
+        "gh pr diff 42 --repo mjdominiczak/songbook",
+        "gh pr checks 42 --repo mjdominiczak/songbook",
+    ],
+    not_match=[
+        "gh pr create --repo mjdominiczak/songbook",
+        "gh pr merge 42 --repo mjdominiczak/songbook",
+    ],
+)
+
+prefix_rule(
+    pattern=["gh", "run", ["list", "view", "watch"]],
+    decision="allow",
+    justification="Read-only GitHub Actions inspection for the Songbook repository.",
+    match=[
+        "gh run list --repo mjdominiczak/songbook",
+        "gh run view 123 --repo mjdominiczak/songbook",
+        "gh run watch 123 --repo mjdominiczak/songbook",
+    ],
+)
+
+prefix_rule(
+    pattern=["gh", "pr", "create"],
+    decision="prompt",
+    justification="Auto-review PR creation so the destination remains pinned to Songbook.",
+    match=["gh pr create --repo mjdominiczak/songbook --base master --head feature/example"],
+    not_match=["gh pr merge 42 --repo mjdominiczak/songbook"],
+)
+
+prefix_rule(
+    pattern=["gh", "issue", ["list", "view"]],
+    decision="allow",
+    justification="Read-only issue inspection is non-destructive.",
+    match=[
+        "gh issue list --repo mjdominiczak/songbook",
+        "gh issue view 42 --repo mjdominiczak/songbook",
+    ],
+    not_match=[
+        "gh issue edit 42 --repo mjdominiczak/songbook --add-label ready-for-agent",
+        "gh issue delete 42 --repo mjdominiczak/songbook",
+    ],
+)
+
+prefix_rule(
+    pattern=["gh", "issue", ["create", "edit", "comment", "close", "reopen"]],
+    decision="prompt",
+    justification="Auto-review issue mutations so the destination remains pinned to Songbook.",
+    match=[
+        "gh issue create --repo mjdominiczak/songbook --title example --body example",
+        "gh issue edit 42 --repo mjdominiczak/songbook --add-label ready-for-agent",
+        "gh issue comment 42 --repo mjdominiczak/songbook --body update",
+        "gh issue close 42 --repo mjdominiczak/songbook",
+        "gh issue reopen 42 --repo mjdominiczak/songbook",
+    ],
+    not_match=["gh issue delete 42 --repo mjdominiczak/songbook"],
+)
+
+prefix_rule(
+    pattern=["gh", "label", "list"],
+    decision="allow",
+    justification="Reading the repository label vocabulary is non-destructive.",
+    match=["gh label list --repo mjdominiczak/songbook"],
+    not_match=[
+        "gh label create example --repo mjdominiczak/songbook",
+        "gh label delete example --repo mjdominiczak/songbook",
+    ],
+)
+
+prefix_rule(
+    pattern=["gh", "auth", "status"],
+    decision="allow",
+    justification="Checking GitHub CLI authentication is non-destructive.",
+    match=["gh auth status"],
+)
+
+prefix_rule(
+    pattern=["git", "fetch"],
+    decision="allow",
+    justification="Fetching remote refs does not update the working tree or remote repository.",
+    match=["git fetch origin"],
+    not_match=["git push origin feature/example"],
+)
+
+prefix_rule(
+    pattern=["git", "switch"],
+    decision="prompt",
+    justification="Auto-review normal branch switches and gate flags that discard local changes.",
+    match=[
+        "git switch feature/example",
+        "git switch -c feature/example",
+    ],
+    not_match=["git reset --hard"],
+)
+
+prefix_rule(
+    pattern=["git", "ls-remote"],
+    decision="allow",
+    justification="Reading remote refs is non-destructive.",
+    match=["git ls-remote origin"],
+)
+
+prefix_rule(
+    pattern=[".\\gradlew.bat"],
+    decision="prompt",
+    justification="Auto-review Gradle tasks so external script and configuration overrides stay gated.",
+    match=[
+        ".\\\\gradlew.bat assembleDebug",
+        ".\\\\gradlew.bat testDebugUnitTest",
+    ],
+)
