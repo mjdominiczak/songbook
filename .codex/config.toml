@@ -3,14 +3,18 @@ approvals_reviewer = "auto_review"
 
 [auto_review]
 policy = """
+The Songbook Platform repositories are mjdominiczak/songbook,
+mjdominiczak/songs-manager, and mjdominiczak/songbook-backend.
+
 Approve ordinary and force git pushes when they target a non-default feature
-branch in mjdominiczak/songbook through the origin remote. This includes history
-rewrites using --force, -f, --force-with-lease, --force-if-includes, or a leading
-+ refspec. If the command omits the remote, approve it only when the configured
-upstream resolves to that same origin.
+branch in one of the Songbook Platform repositories through that repository's
+origin remote. This includes history rewrites using --force, -f,
+--force-with-lease, --force-if-includes, or a leading + refspec. If the command
+omits the remote, approve it only when the configured upstream resolves to that
+same origin.
 
 Do not approve pushes to another named remote, an explicit URL, or a repository
-other than mjdominiczak/songbook unless the user's current request explicitly
+outside the Songbook Platform set unless the user's current request explicitly
 authorizes that exact destination.
 
 Approve normal git switch operations, including creating a feature branch. Do not
@@ -25,13 +29,21 @@ current request explicitly authorizes the exact operation. Destructive or broad
 forms include --delete, --mirror, --prune, --all, and deletion refspecs such as
 :branch.
 
-Approve gh pr create only for mjdominiczak/songbook and only when it is consistent
-with the user's current task.
+Approve gh pr create for any Songbook Platform repository when it is consistent
+with the user's current task. A PR from a feature branch pushed as part of the
+same task is an expected bounded follow-up and does not require separate
+destination authorization.
 Approve routine gh issue creation, editing, commenting, labeling, assignment,
-closing, and reopening only for mjdominiczak/songbook and only when they are
+closing, and reopening in any Songbook Platform repository when they are
 consistent with the user's current task. This includes assigning and removing
-labels on issues, but not creating, editing, or deleting the repository's label
+labels on issues, but not creating, editing, or deleting a repository's label
 vocabulary.
+
+Approve read-only gh project operations for personal Project #2 owned by
+mjdominiczak. Approve routine item addition, item field updates, Project metadata
+editing, and linking of the three Songbook Platform repositories when consistent
+with the user's current task. Do not approve Project deletion, closure, field
+deletion, or broad item deletion without explicit authorization.
 
 Approve standard tasks and diagnostics run through the repository's gradlew.bat,
 including the documented build and test commands. Do not approve an invocation
