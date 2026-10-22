@@ -21,7 +21,7 @@ material3 = "1.4.0"
 mockitoCore = "5.24.0"
 mockitoInline = "5.2.0"
 navigationCompose = "2.10.2"
-okhttp = "5.5.0"
+okhttp = "5.5.1"
 room = "2.8.5"
 truth = "1.4.5"
 
